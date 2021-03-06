@@ -1,0 +1,40 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type"content="text/html"/>
+    <title>Show Song</title>
+</head>
+<body>
+<h1>{{details.songName}}</h1>
+
+{% if pic %}
+
+<!--8Gaso9f9f54-->
+<img src="{{ pic.picAddress }}" />
+<ul>
+    <li>
+        Name of this artist:
+        <a href="{% url 'showArtistPage' inputID=details.artistID %}">{{details.artistName}}</a>
+    </li>
+    <li>
+        Name of this album:
+        <a href="{% url 'showAlbumPage' inputID=details.albumID %}">{{details.albumName}}</a>
+    </li>
+
+</ul>
+<ul>
+    <li>Lyrics of this song: <br><i>{{lyrics.songLyrics}}</i></li>
+</ul>
+<ul>
+    <li>Comment: <br><i>{{ cmt.comment }}</i></li>
+    <li>Comment Date: <br><i>{{ cmt.cmtTime }}</i></li>
+    <li>Comment Like: <br><i>{{ cmt.numLike }}</i></li>
+    <li>Comment User Name: <br><i>{{ cmt.userName }}</i></li>
+</ul>
+
+
+{% else %}
+    <p>There is no such a song in our database.</p>
+{% endif %}
+
+</body>
+</html>

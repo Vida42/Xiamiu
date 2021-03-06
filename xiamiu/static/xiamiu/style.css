@@ -1,0 +1,20 @@
+.column {
+  float: left;
+  width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+li a {
+    color: green;
+}
+
+
+body {
+    background: white url("images/default.jpg") no-repeat;
+}
