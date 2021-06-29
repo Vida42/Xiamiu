@@ -11,16 +11,23 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import configparser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Import sensitive data
+config = configparser.ConfigParser(interpolation=None)
+config.read(BASE_DIR + '/foobar.config')
+USER = config.get('DEFAULT', 'User')
+PASSWORD = config.get('DEFAULT', 'Password')
+PORT = config.get('DEFAULT', 'Port')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = config.get('DEFAULT', 'Key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'xiami',
     'xiamiu'
 ]
 
@@ -82,10 +88,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Xiamiu',
-        'USER': '',               # Fill in your database username here
-        'PASSWORD': '',           # Fill in your database password here
+        'USER': USER,               # Fill in your database username here
+        'PASSWORD': PASSWORD,           # Fill in your database password here
         'HOST': 'localhost',
-        'PORT': '3306',               # Fill in your database port here
+        'PORT': PORT,               # Fill in your database port here
     }
 }
 
