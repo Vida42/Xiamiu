@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Heading, Text, SimpleGrid, Box, Flex, Input, InputGroup, InputLeftElement, Select } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import { AlbumCard } from '../../components/Cards';
+import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { SearchIcon } from '@chakra-ui/icons';
 
 export default function Albums() {
   const [albums, setAlbums] = useState([]);
@@ -60,62 +62,72 @@ export default function Albums() {
     setFilteredAlbums(result);
   }, [searchTerm, sortBy, albums]);
 
-  if (error) {
+  const renderContent = () => {
+    if (error) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Heading mb={4}>Error</Heading>
+          <Text>{error}</Text>
+        </Box>
+      );
+    }
+  
     return (
-      <Box textAlign="center" py={10}>
-        <Heading mb={4}>Error</Heading>
-        <Text>{error}</Text>
+      <Box>
+        <Heading mb={6}>Albums</Heading>
+        
+        <Flex 
+          direction={{ base: 'column', md: 'row' }} 
+          gap={4} 
+          mb={8} 
+          justifyContent="space-between"
+          alignItems={{ base: 'stretch', md: 'center' }}
+        >
+          <InputGroup maxW={{ base: '100%', md: '500px' }}>
+            <InputLeftElement pointerEvents="none">
+              <SearchIcon color="gray.300" />
+            </InputLeftElement>
+            <Input 
+              placeholder="Filter albums by name..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+          
+          <Select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            maxW={{ base: '100%', md: '200px' }}
+          >
+            <option value="name">Name (A-Z)</option>
+            <option value="release_date_newest">Newest First</option>
+            <option value="release_date_oldest">Oldest First</option>
+            <option value="rating">Highest Rated</option>
+          </Select>
+        </Flex>
+  
+        {isLoading ? (
+          <Flex justify="center" py={10}>
+            <Text>Loading albums...</Text>
+          </Flex>
+        ) : filteredAlbums.length === 0 ? (
+          <Box textAlign="center" py={10}>
+            <Text>No albums found matching "{searchTerm}"</Text>
+          </Box>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {filteredAlbums.map(album => (
+              <AlbumCard key={album.album_id} album={album} />
+            ))}
+          </SimpleGrid>
+        )}
       </Box>
     );
-  }
+  };
 
   return (
-    <Box>
-      <Heading mb={6}>Albums</Heading>
-      
-      <Flex 
-        direction={{ base: 'column', md: 'row' }} 
-        gap={4} 
-        mb={8} 
-        justifyContent="space-between"
-        alignItems={{ base: 'stretch', md: 'center' }}
-      >
-        <InputGroup maxW={{ base: '100%', md: '500px' }}>
-          <InputLeftElement pointerEvents="none">🔍</InputLeftElement>
-          <Input 
-            placeholder="Filter albums by name..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </InputGroup>
-        
-        <Select 
-          value={sortBy} 
-          onChange={(e) => setSortBy(e.target.value)}
-          maxW={{ base: '100%', md: '200px' }}
-        >
-          <option value="name">Name (A-Z)</option>
-          <option value="release_date_newest">Newest First</option>
-          <option value="release_date_oldest">Oldest First</option>
-          <option value="rating">Highest Rated</option>
-        </Select>
-      </Flex>
-
-      {isLoading ? (
-        <Flex justify="center" py={10}>
-          <Text>Loading albums...</Text>
-        </Flex>
-      ) : filteredAlbums.length === 0 ? (
-        <Box textAlign="center" py={10}>
-          <Text>No albums found matching "{searchTerm}"</Text>
-        </Box>
-      ) : (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-          {filteredAlbums.map(album => (
-            <AlbumCard key={album.album_id} album={album} />
-          ))}
-        </SimpleGrid>
-      )}
-    </Box>
+    <XiamiuLayout>
+      {renderContent()}
+    </XiamiuLayout>
   );
 } 
