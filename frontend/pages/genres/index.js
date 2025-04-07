@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Heading, Text, SimpleGrid, Box, Flex, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import { GenreCard } from '../../components/Cards';
+import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { SearchIcon } from '@chakra-ui/icons';
 
 export default function Genres() {
   const [genres, setGenres] = useState([]);
@@ -40,43 +42,53 @@ export default function Genres() {
     setFilteredGenres(filtered);
   }, [searchTerm, genres]);
 
-  if (error) {
+  const renderContent = () => {
+    if (error) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Heading mb={4}>Error</Heading>
+          <Text>{error}</Text>
+        </Box>
+      );
+    }
+
     return (
-      <Box textAlign="center" py={10}>
-        <Heading mb={4}>Error</Heading>
-        <Text>{error}</Text>
+      <Box>
+        <Heading mb={6}>Genres</Heading>
+        
+        <InputGroup mb={8} maxW="500px">
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.300" />
+          </InputLeftElement>
+          <Input 
+            placeholder="Filter genres by name..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </InputGroup>
+
+        {isLoading ? (
+          <Flex justify="center" py={10}>
+            <Text>Loading genres...</Text>
+          </Flex>
+        ) : filteredGenres.length === 0 ? (
+          <Box textAlign="center" py={10}>
+            <Text>No genres found matching "{searchTerm}"</Text>
+          </Box>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {filteredGenres.map(genre => (
+              <GenreCard key={genre.id} genre={genre} />
+            ))}
+          </SimpleGrid>
+        )}
       </Box>
     );
-  }
+  };
 
   return (
-    <Box>
-      <Heading mb={6}>Genres</Heading>
-      
-      <InputGroup mb={8} maxW="500px">
-        <InputLeftElement pointerEvents="none">🔍</InputLeftElement>
-        <Input 
-          placeholder="Filter genres by name..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </InputGroup>
-
-      {isLoading ? (
-        <Flex justify="center" py={10}>
-          <Text>Loading genres...</Text>
-        </Flex>
-      ) : filteredGenres.length === 0 ? (
-        <Box textAlign="center" py={10}>
-          <Text>No genres found matching "{searchTerm}"</Text>
-        </Box>
-      ) : (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-          {filteredGenres.map(genre => (
-            <GenreCard key={genre.id} genre={genre} />
-          ))}
-        </SimpleGrid>
-      )}
-    </Box>
+    <XiamiuLayout>
+      {renderContent()}
+    </XiamiuLayout>
   );
 } 

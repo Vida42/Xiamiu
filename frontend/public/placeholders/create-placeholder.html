@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Album Placeholder Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #f60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .output {
+            width: 100%;
+            max-width: 600px;
+            height: 150px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xiamiu Album Placeholder Generator</h1>
+    <p>Generate a placeholder image in Xiamiu style</p>
+    
+    <canvas id="canvas" width="300" height="300"></canvas>
+    
+    <button id="generate">Generate Image</button>
+    
+    <textarea class="output" id="output" placeholder="Image data URL will appear here"></textarea>
+    
+    <script>
+        document.getElementById('generate').addEventListener('click', function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#ff6600');
+            gradient.addColorStop(1, '#ff9966');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw center circle
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, 100, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fill();
+            
+            // Draw music note
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 100px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('♪', canvas.width/2, canvas.height/2);
+            
+            // Draw text
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('XIAMIU', canvas.width/2, canvas.height - 50);
+            
+            // Get data URL and output
+            const dataURL = canvas.toDataURL('image/png');
+            document.getElementById('output').value = dataURL;
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'album-placeholder.png';
+            link.href = dataURL;
+            link.click();
+        });
+    </script>
+</body>
+</html> 

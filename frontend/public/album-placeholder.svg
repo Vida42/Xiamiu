@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6600" />
+      <stop offset="100%" stop-color="#ff9966" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="300" height="300" fill="url(#gradient)" />
+  
+  <!-- Center circle -->
+  <circle cx="150" cy="150" r="100" fill="rgba(255, 255, 255, 0.2)" />
+  
+  <!-- Music note -->
+  <text x="150" y="150" font-family="Arial" font-size="100" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">♪</text>
+  
+  <!-- Text -->
+  <text x="150" y="250" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">XIAMIU</text>
+</svg> 
