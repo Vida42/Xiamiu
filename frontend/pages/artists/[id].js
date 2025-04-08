@@ -15,6 +15,7 @@ export default function ArtistDetail() {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchArtistData = async () => {
@@ -125,36 +126,48 @@ export default function ArtistDetail() {
               )}
               
               <Divider my={4} />
-              
-              <NextLink href="/artists" passHref legacyBehavior>
-                <Link color="blue.500">
-                  Back to All Artists
-                </Link>
-              </NextLink>
             </Box>
           </Flex>
         </Box>
         
-        <Tabs isLazy colorScheme="blue" mt={8}>
-          <TabList>
-            <Tab>Albums ({albums.length})</Tab>
-            <Tab>Comments ({comments.length})</Tab>
-          </TabList>
+        <Box 
+          className="detail-tabs"
+          mt={8}
+        >
+          <Flex 
+            as="ul" 
+            className="bottom-ul-menu"
+            mb={4}
+          >
+            <Box as="li" className={activeTab === 0 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(0)}>
+                Albums ({albums.length})
+              </Link>
+            </Box>
+            <Box as="li" className={activeTab === 1 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(1)}>
+                Comments ({comments.length})
+              </Link>
+            </Box>
+          </Flex>
           
-          <TabPanels>
-            <TabPanel>
-              {albums.length === 0 ? (
-                <Text py={4}>No albums available for this artist.</Text>
-              ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mt={4}>
-                  {albums.map(album => (
-                    <AlbumCard key={album.album_id} album={album} />
-                  ))}
-                </SimpleGrid>
-              )}
-            </TabPanel>
-            
-            <TabPanel>
+          {activeTab === 0 ? (
+            <Box>
+              <Box p={6}>
+                <Heading size="lg" mb={6}>Albums</Heading>
+                {albums.length === 0 ? (
+                  <Text>No albums found for this artist.</Text>
+                ) : (
+                  <SimpleGrid columns={{ base: 1, md: 3, lg: 5 }} spacing={3}>
+                    {albums.map(album => (
+                      <AlbumCard key={album.album_id} album={album} />
+                    ))}
+                  </SimpleGrid>
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Box>
               {comments.length === 0 ? (
                 <Text py={4}>No comments available for this artist.</Text>
               ) : (
@@ -180,9 +193,9 @@ export default function ArtistDetail() {
                   ))}
                 </Box>
               )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </Box>
+          )}
+        </Box>
       </Box>
     );
   };

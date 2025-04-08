@@ -159,7 +159,7 @@ export default function Home() {
           {/* Recommended Songs Section */}
           <Box mb={12}>
             <SectionHeader title="猜你喜欢" />
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing={6}>
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing={3}>
               {recommendedSongs.map(song => (
                 <SongCard key={song.song_id} song={song} />
               ))}
@@ -174,7 +174,7 @@ export default function Home() {
               selectedLang={selectedLang}
               onSelect={setSelectedLang}
             />
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing={3}>
               {filteredAlbums.map(album => (
                 <AlbumCard key={album.album_id} album={album} />
               ))}

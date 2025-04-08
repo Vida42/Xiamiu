@@ -22,9 +22,10 @@ export const ArtistCard = ({ artist }) => {
   return (
     <LinkBox as="article">
       <Box
-        maxW="sm"
+        w="100%"
+        h="100%"
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="md"
         overflow="hidden"
         transition="transform 0.3s"
         _hover={{ transform: 'scale(1.03)' }}
@@ -32,19 +33,19 @@ export const ArtistCard = ({ artist }) => {
         <Image
           src={artistMeta?.pic_address || `/placeholder-artist.jpg`}
           alt={artist.name}
-          height="200px"
+          height="140px"
           width="100%"
           objectFit="cover"
           crossOrigin="anonymous"
           fallbackSrc="/placeholder-artist.jpg"
         />
-        <Box p={4}>
+        <Box pt={1} px={2} pb={1}>
           <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
             <LinkOverlay>
-              <Heading size="md" mb={2}>{artist.name}</Heading>
+              <Heading size="sm" mb={0.5}>{artist.name}</Heading>
             </LinkOverlay>
           </NextLink>
-          <Text color="gray.500" fontSize="sm">
+          <Text color="gray.500" fontSize="xs">
             Reign: {artist.reign}
           </Text>
         </Box>
@@ -77,9 +78,10 @@ export const AlbumCard = ({ album }) => {
   return (
     <LinkBox as="article">
       <Box
-        maxW="sm"
+        w="100%"
+        h="100%"
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="md"
         overflow="hidden"
         transition="transform 0.3s"
         _hover={{ transform: 'scale(1.03)' }}
@@ -87,25 +89,25 @@ export const AlbumCard = ({ album }) => {
         <Image
           src={albumMeta?.pic_address || `/placeholder-album.jpg`}
           alt={album.name}
-          height="200px"
+          height="140px"
           width="100%"
           objectFit="cover"
           crossOrigin="anonymous"
           fallbackSrc="/placeholder-album.jpg"
         />
-        <Box p={4}>
+        <Box pt={1} px={2} pb={1}>
           <NextLink href={`/albums/${album.album_id}`} passHref legacyBehavior>
             <LinkOverlay>
-              <Heading size="md" mb={2}>{album.name}</Heading>
+              <Heading size="sm" mb={0.5}>{album.name}</Heading>
             </LinkOverlay>
           </NextLink>
           <Flex justifyContent="space-between" alignItems="center">
-            <Text color="gray.500" fontSize="sm">
+            <Text color="gray.500" fontSize="xs">
               Released: {formatDate(album.release_date)}
             </Text>
-            <Stack direction="row">
+            <Stack direction="row" spacing={0.5}>
               {Array.from({ length: album.star }).map((_, i) => (
-                <span key={i}>⭐</span>
+                <Text key={i} fontSize="10px" lineHeight="1">⭐</Text>
               ))}
             </Stack>
           </Flex>
@@ -119,23 +121,23 @@ export const SongCard = ({ song }) => {
   return (
     <LinkBox as="article">
       <Box
-        p={4}
+        p={2}
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="md"
         overflow="hidden"
         transition="transform 0.3s"
         _hover={{ transform: 'scale(1.03)', bg: 'gray.50' }}
       >
         <NextLink href={`/songs/${song.song_id}`} passHref legacyBehavior>
           <LinkOverlay>
-            <Heading size="sm" mb={2}>{song.name}</Heading>
+            <Heading size="sm" mb={1}>{song.name}</Heading>
           </LinkOverlay>
         </NextLink>
         <Flex justifyContent="space-between" alignItems="center">
           <Text fontSize="xs" color="gray.500">Album: {song.album_id}</Text>
           <Badge colorScheme="yellow">
             {Array.from({ length: song.star }).map((_, i) => (
-              <span key={i}>⭐</span>
+              <Text as="span" key={i} fontSize="10px">⭐</Text>
             ))}
           </Badge>
         </Flex>
@@ -148,17 +150,16 @@ export const GenreCard = ({ genre }) => {
   return (
     <LinkBox as="article">
       <Box
-        p={4}
+        p={2}
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="md"
         overflow="hidden"
-        bg="purple.50"
         transition="transform 0.3s"
-        _hover={{ transform: 'scale(1.03)', bg: 'purple.100' }}
+        _hover={{ transform: 'scale(1.03)', bg: 'gray.50' }}
       >
         <NextLink href={`/genres/${genre.id}`} passHref legacyBehavior>
           <LinkOverlay>
-            <Heading size="sm" mb={2}>{genre.name}</Heading>
+            <Heading size="sm" mb={1}>{genre.name}</Heading>
           </LinkOverlay>
         </NextLink>
         <Text fontSize="xs" noOfLines={2}>{genre.info}</Text>

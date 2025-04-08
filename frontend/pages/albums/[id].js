@@ -16,6 +16,7 @@ export default function AlbumDetail() {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchAlbumData = async () => {
@@ -115,8 +116,8 @@ export default function AlbumDetail() {
                 src={albumMeta?.pic_address || '/album-placeholder.svg'}
                 alt={album.name}
                 borderRadius="lg"
-                width="100%"
-                height="auto"
+                width="260px"
+                height="260px"
                 objectFit="cover"
                 crossOrigin="anonymous"
                 fallbackSrc="/album-placeholder.svg"
@@ -129,11 +130,11 @@ export default function AlbumDetail() {
             </Box>
             
             <Box>
-              <Heading size="2xl" mb={4}>{album.name}</Heading>
+              <Heading size="md" mb={4}>{album.name}</Heading>
               
               {artist && (
                 <Flex gap={2} mb={4}>
-                  <Text fontWeight="bold">Artist:</Text>
+                  <Text width="120px">Artist:</Text>
                   <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
                     <Link fontSize="md" color="blue.500">
                       {artist.name}
@@ -145,17 +146,17 @@ export default function AlbumDetail() {
               <Box mt={4}>
                 <VStack spacing={2} align="flex-start">
                   <Flex>
-                    <Text fontWeight="bold" width="120px">Release Date:</Text>
+                    <Text width="120px">Release Date:</Text>
                     <Text>{formatDate(album.release_date)}</Text>
                   </Flex>
                   
                   <Flex>
-                    <Text fontWeight="bold" width="120px">Language:</Text>
+                    <Text width="120px">Language:</Text>
                     <Text>{album.album_lan}</Text>
                   </Flex>
                   
                   <Flex>
-                    <Text fontWeight="bold" width="120px">Category:</Text>
+                    <Text width="120px">Category:</Text>
                     <Text>{album.album_category}</Text>
                   </Flex>
                   
@@ -178,24 +179,33 @@ export default function AlbumDetail() {
               )}
               
               <Divider my={4} />
-              
-              <NextLink href="/albums" passHref legacyBehavior>
-                <Link color="blue.500">
-                  Back to All Albums
-                </Link>
-              </NextLink>
             </Box>
           </Flex>
         </Box>
         
-        <Tabs isLazy colorScheme="blue" mt={8}>
-          <TabList>
-            <Tab>Songs ({songs.length})</Tab>
-            <Tab>Comments ({comments.length})</Tab>
-          </TabList>
+        <Box 
+          className="detail-tabs"
+          mt={8}
+        >
+          <Flex 
+            as="ul" 
+            className="bottom-ul-menu"
+            mb={4}
+          >
+            <Box as="li" className={activeTab === 0 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(0)}>
+                Songs ({songs.length})
+              </Link>
+            </Box>
+            <Box as="li" className={activeTab === 1 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(1)}>
+                Comments ({comments.length})
+              </Link>
+            </Box>
+          </Flex>
           
-          <TabPanels>
-            <TabPanel>
+          {activeTab === 0 ? (
+            <Box>
               {songs.length === 0 ? (
                 <Text py={4}>No songs available for this album.</Text>
               ) : (
@@ -225,9 +235,9 @@ export default function AlbumDetail() {
                   </Table>
                 </Box>
               )}
-            </TabPanel>
-            
-            <TabPanel>
+            </Box>
+          ) : (
+            <Box>
               {comments.length === 0 ? (
                 <Text py={4}>No comments available for this album.</Text>
               ) : (
@@ -253,9 +263,9 @@ export default function AlbumDetail() {
                   ))}
                 </Box>
               )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </Box>
+          )}
+        </Box>
       </Box>
     );
   };

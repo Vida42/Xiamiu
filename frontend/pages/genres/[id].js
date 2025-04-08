@@ -14,6 +14,7 @@ export default function GenreDetail() {
   const [relatedAlbums, setRelatedAlbums] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchGenreData = async () => {
@@ -26,14 +27,23 @@ export default function GenreDetail() {
         const genreData = await api.getGenre(id);
         setGenre(genreData);
         
-        // In a real app, you would have API endpoints to fetch artists and albums by genre
-        // For demonstration purposes, we're just showing placeholders
+        // Fetch related artists
+        try {
+          const artistsData = await api.getArtistsByGenre(id);
+          setRelatedArtists(artistsData);
+        } catch (artistErr) {
+          console.error('Error fetching artists by genre:', artistErr);
+          setRelatedArtists([]);
+        }
         
-        // TODO: Add API endpoint to fetch artists by genre ID
-        setRelatedArtists([]);
-        
-        // TODO: Add API endpoint to fetch albums by genre ID
-        setRelatedAlbums([]);
+        // Fetch related albums
+        try {
+          const albumsData = await api.getAlbumsByGenre(id);
+          setRelatedAlbums(albumsData);
+        } catch (albumErr) {
+          console.error('Error fetching albums by genre:', albumErr);
+          setRelatedAlbums([]);
+        }
         
       } catch (err) {
         console.error('Error fetching genre data:', err);
@@ -83,28 +93,37 @@ export default function GenreDetail() {
     return (
       <Box>
         <Box mb={8}>
-          <Box p={6} borderRadius="lg" bg="purple.50">
-            <Heading size="2xl" mb={4} color="purple.700">{genre.name}</Heading>
-            <Text fontSize="lg" mb={6}>{genre.info}</Text>
+          <Box p={6} borderRadius="lg">
+            <Heading size="lg" mb={4} color="gray.800">{genre.name}</Heading>
+            <Text fontSize="md" mb={6}>{genre.info}</Text>
             
-            <Divider my={4} borderColor="purple.200" />
-            
-            <NextLink href="/genres" passHref legacyBehavior>
-              <Link color="blue.500">
-                Back to All Genres
-              </Link>
-            </NextLink>
+            <Divider my={4} borderColor="gray.200" />
           </Box>
         </Box>
         
-        <Tabs isLazy colorScheme="purple" mt={8}>
-          <TabList>
-            <Tab>Artists</Tab>
-            <Tab>Albums</Tab>
-          </TabList>
-          
-          <TabPanels>
-            <TabPanel>
+        <Box 
+          className="detail-tabs"
+          mt={8}
+        >
+          <Flex 
+            as="ul" 
+            className="bottom-ul-menu"
+            mb={4}
+          >
+            <Box as="li" className={activeTab === 0 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(0)}>
+                Artists
+              </Link>
+            </Box>
+            <Box as="li" className={activeTab === 1 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(1)}>
+                Albums
+              </Link>
+            </Box>
+          </Flex>
+            
+          {activeTab === 0 ? (
+            <Box>
               {relatedArtists.length === 0 ? (
                 <Box py={4}>
                   <Text>No artists available for this genre.</Text>
@@ -113,15 +132,15 @@ export default function GenreDetail() {
                   </Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mt={4}>
+                <SimpleGrid columns={{ base: 1, md: 3, lg: 5 }} spacing={3} mt={4}>
                   {relatedArtists.map(artist => (
                     <ArtistCard key={artist.artist_id} artist={artist} />
                   ))}
                 </SimpleGrid>
               )}
-            </TabPanel>
-            
-            <TabPanel>
+            </Box>
+          ) : (
+            <Box>
               {relatedAlbums.length === 0 ? (
                 <Box py={4}>
                   <Text>No albums available for this genre.</Text>
@@ -130,15 +149,15 @@ export default function GenreDetail() {
                   </Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mt={4}>
+                <SimpleGrid columns={{ base: 1, md: 3, lg: 5 }} spacing={3} mt={4}>
                   {relatedAlbums.map(album => (
                     <AlbumCard key={album.album_id} album={album} />
                   ))}
                 </SimpleGrid>
               )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </Box>
+          )}
+        </Box>
       </Box>
     );
   };

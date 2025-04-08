@@ -15,6 +15,7 @@ export default function SongDetail() {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchSongData = async () => {
@@ -167,22 +168,31 @@ export default function SongDetail() {
           </Box>
             
           <Divider />
-          
-          <NextLink href="/songs" passHref legacyBehavior>
-            <Link color="blue.500">
-              Back to All Songs
-            </Link>
-          </NextLink>
         </VStack>
         
-        <Tabs isLazy colorScheme="blue" mt={8}>
-          <TabList>
-            <Tab>Lyrics</Tab>
-            <Tab>Comments ({comments.length})</Tab>
-          </TabList>
-          
-          <TabPanels>
-            <TabPanel>
+        <Box 
+          className="detail-tabs"
+          mt={8}
+        >
+          <Flex 
+            as="ul" 
+            className="bottom-ul-menu"
+            mb={4}
+          >
+            <Box as="li" className={activeTab === 0 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(0)}>
+                Lyrics
+              </Link>
+            </Box>
+            <Box as="li" className={activeTab === 1 ? "active" : ""}>
+              <Link onClick={() => setActiveTab(1)}>
+                Comments ({comments.length})
+              </Link>
+            </Box>
+          </Flex>
+            
+          {activeTab === 0 ? (
+            <Box>
               {songMeta ? (
                 <Box 
                   whiteSpace="pre-wrap" 
@@ -197,9 +207,9 @@ export default function SongDetail() {
               ) : (
                 <Text py={4}>No lyrics available for this song.</Text>
               )}
-            </TabPanel>
-            
-            <TabPanel>
+            </Box>
+          ) : (
+            <Box>
               {comments.length === 0 ? (
                 <Text py={4}>No comments available for this song.</Text>
               ) : (
@@ -225,9 +235,9 @@ export default function SongDetail() {
                   ))}
                 </Box>
               )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </Box>
+          )}
+        </Box>
       </Box>
     );
   };

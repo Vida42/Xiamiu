@@ -111,6 +111,15 @@ export const api = {
       throw error;
     }
   },
+  getAlbumsByLanguage: async (language) => {
+    try {
+      const response = await apiClient.get(`/albums/language/${language}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching albums by language ${language}:`, error);
+      throw error;
+    }
+  },
   getAlbum: async (id) => {
     try {
       const response = await apiClient.get(`/albums/${id}`);
@@ -205,6 +214,24 @@ export const api = {
       throw error;
     }
   },
+  getArtistsByGenre: async (id) => {
+    try {
+      const response = await apiClient.get(`/genres/${id}/artists`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching artists for genre ${id}:`, error);
+      throw error;
+    }
+  },
+  getAlbumsByGenre: async (id) => {
+    try {
+      const response = await apiClient.get(`/genres/${id}/albums`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching albums for genre ${id}:`, error);
+      throw error;
+    }
+  },
 
   // Users
   getUsers: async () => {
@@ -225,4 +252,4 @@ export const api = {
       throw error;
     }
   },
-}; 
+};

@@ -1,4 +1,4 @@
-import { Box, Flex, Container, Link, Input, InputGroup, InputLeftElement, useColorModeValue, Text } from '@chakra-ui/react';
+import { Box, Flex, Container, Link, Input, InputGroup, InputLeftElement, InputRightElement, useColorModeValue, Text, Select, Button } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { SearchIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
@@ -54,16 +54,39 @@ const SubNavLink = ({ href, children, isActive }) => {
 const XiamiuLayout = ({ children }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchType, setSearchType] = useState('general');
 
   // Handle search functionality
-  const handleSearch = (e) => {
-    if (e.key === 'Enter') {
-      const query = e.target.value.trim();
-      if (query) {
+  const handleSearch = () => {
+    const query = searchQuery.trim();
+    if (query) {
+      if (searchType === 'general') {
         router.push(`/search?q=${encodeURIComponent(query)}`);
+      } else {
+        router.push(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
       }
     }
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Check if current page is a detail page or an index page
+  const isDetailPage = 
+    router.pathname.includes('/artists/[id]') || 
+    router.pathname.includes('/albums/[id]') || 
+    router.pathname.includes('/songs/[id]') ||
+    router.pathname.includes('/genres/[id]');
+
+  // Check if the page has its own filtering mechanism (all index pages except home)
+  const hasOwnFiltering =
+    router.pathname === '/artists' ||
+    router.pathname === '/albums' || 
+    router.pathname === '/genres' ||
+    router.pathname === '/songs';
 
   return (
     <Box fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
@@ -79,7 +102,7 @@ const XiamiuLayout = ({ children }) => {
       </Head>
       
       {/* Main Orange Navigation Bar (header-top) */}
-      <Box className="header-top">
+      <Box className="header-top" bg="#f60">
         <Container maxW="container.xl">
           <Flex h="60px" alignItems="center" justifyContent="space-between">
             {/* Logo and Main Nav */}
@@ -103,23 +126,49 @@ const XiamiuLayout = ({ children }) => {
               </NavLink>
             </Flex>
 
-            {/* Search Bar */}
-            <InputGroup maxW="300px">
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.300" />
-              </InputLeftElement>
-              <Input
-                placeholder="音乐搜索..."
+            {/* Search Bar with Type Selector - Show on all pages */}
+            <Flex>
+              <InputGroup maxW="300px">
+                <Input
+                  placeholder="音乐搜索..."
+                  bg="white"
+                  color="gray.800"
+                  _placeholder={{ color: 'gray.400' }}
+                  onKeyDown={handleKeyDown}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchQuery}
+                  borderRadius="full 0 0 full"
+                  size="sm"
+                />
+              </InputGroup>
+              <Select
                 bg="white"
                 color="gray.800"
-                _placeholder={{ color: 'gray.400' }}
-                onKeyDown={handleSearch}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                value={searchQuery}
-                borderRadius="full"
                 size="sm"
-              />
-            </InputGroup>
+                width="120px"
+                borderLeftRadius="0"
+                borderRightRadius="0"
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value)}
+                borderLeftColor="transparent"
+              >
+                <option value="general">全部</option>
+                <option value="song">歌曲</option>
+                <option value="album">专辑</option>
+                <option value="artist">艺人</option>
+                <option value="genre">风格</option>
+              </Select>
+              <Button 
+                bg="white"
+                size="sm"
+                borderLeftRadius="0"
+                borderRightRadius="full"
+                onClick={handleSearch}
+                px={2}
+              >
+                <SearchIcon color="gray.500" />
+              </Button>
+            </Flex>
 
             {/* Auth Links */}
             <Flex gap={4}>

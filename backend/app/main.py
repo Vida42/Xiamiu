@@ -4,11 +4,12 @@ from enum import Enum
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from . import crud
 from . import schemas
 from .database import get_db
+from .utils import convert_datetime_to_iso8601
 
 # Load environment variables
 load_dotenv()
@@ -73,6 +74,24 @@ def read_genre(genre_id: int, db: Session = Depends(get_db)):
     return db_genre
 
 
+@app.get("/genres/{genre_id}/artists", response_model=List[schemas.Artist])
+def read_artists_by_genre(genre_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    db_genre = crud.get_genre(db, genre_id=genre_id)
+    if db_genre is None:
+        raise HTTPException(status_code=404, detail="Genre not found")
+    artists = crud.get_artists_by_genre(db, genre_id=genre_id, skip=skip, limit=limit)
+    return artists
+
+
+@app.get("/genres/{genre_id}/albums", response_model=List[schemas.Album])
+def read_albums_by_genre(genre_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    db_genre = crud.get_genre(db, genre_id=genre_id)
+    if db_genre is None:
+        raise HTTPException(status_code=404, detail="Genre not found")
+    albums = crud.get_albums_by_genre(db, genre_id=genre_id, skip=skip, limit=limit)
+    return albums
+
+
 # Artist endpoints
 @app.post("/artists/", response_model=schemas.Artist)
 def create_artist(artist: schemas.ArtistCreate, db: Session = Depends(get_db)):
@@ -117,6 +136,12 @@ def create_album(album: schemas.AlbumCreate, db: Session = Depends(get_db)):
 @app.get("/albums/", response_model=List[schemas.Album])
 def read_albums(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     albums = crud.get_albums(db, skip=skip, limit=limit)
+    return albums
+
+
+@app.get("/albums/language/{language}", response_model=List[schemas.Album])
+def read_albums_by_language(language: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    albums = crud.get_albums_by_language(db, album_lan=language, skip=skip, limit=limit)
     return albums
 
 
@@ -251,7 +276,13 @@ def create_comment_for_song(song_id: str, comment: schemas.SongCommentCreate, db
     if db_song is None:
         raise HTTPException(status_code=404, detail="Song not found")
     comment.song_id = song_id
-    return crud.create_song_comment(db=db, comment=comment)
+    created_comment = crud.create_song_comment(db=db, comment=comment)
+    
+    # Convert datetime fields to strings
+    created_comment.created = convert_datetime_to_iso8601(created_comment.created)
+    created_comment.modified = convert_datetime_to_iso8601(created_comment.modified)
+    
+    return created_comment
 
 
 @app.get("/songs/{song_id}/comments", response_model=List[schemas.SongComment])
@@ -260,6 +291,12 @@ def read_comments_for_song(song_id: str, skip: int = 0, limit: int = 100, db: Se
     if db_song is None:
         raise HTTPException(status_code=404, detail="Song not found")
     comments = crud.get_song_comments(db, song_id=song_id, skip=skip, limit=limit)
+    
+    # Convert datetime fields to strings
+    for comment in comments:
+        comment.created = convert_datetime_to_iso8601(comment.created)
+        comment.modified = convert_datetime_to_iso8601(comment.modified)
+    
     return comments
 
 
@@ -269,7 +306,13 @@ def create_comment_for_artist(artist_id: str, comment: schemas.ArtistCommentCrea
     if db_artist is None:
         raise HTTPException(status_code=404, detail="Artist not found")
     comment.artist_id = artist_id
-    return crud.create_artist_comment(db=db, comment=comment)
+    created_comment = crud.create_artist_comment(db=db, comment=comment)
+    
+    # Convert datetime fields to strings
+    created_comment.created = convert_datetime_to_iso8601(created_comment.created)
+    created_comment.modified = convert_datetime_to_iso8601(created_comment.modified)
+    
+    return created_comment
 
 
 @app.get("/artists/{artist_id}/comments", response_model=List[schemas.ArtistComment])
@@ -278,6 +321,12 @@ def read_comments_for_artist(artist_id: str, skip: int = 0, limit: int = 100, db
     if db_artist is None:
         raise HTTPException(status_code=404, detail="Artist not found")
     comments = crud.get_artist_comments(db, artist_id=artist_id, skip=skip, limit=limit)
+    
+    # Convert datetime fields to strings
+    for comment in comments:
+        comment.created = convert_datetime_to_iso8601(comment.created)
+        comment.modified = convert_datetime_to_iso8601(comment.modified)
+    
     return comments
 
 
@@ -287,7 +336,13 @@ def create_comment_for_album(album_id: str, comment: schemas.AlbumCommentCreate,
     if db_album is None:
         raise HTTPException(status_code=404, detail="Album not found")
     comment.album_id = album_id
-    return crud.create_album_comment(db=db, comment=comment)
+    created_comment = crud.create_album_comment(db=db, comment=comment)
+    
+    # Convert datetime fields to strings
+    created_comment.created = convert_datetime_to_iso8601(created_comment.created)
+    created_comment.modified = convert_datetime_to_iso8601(created_comment.modified)
+    
+    return created_comment
 
 
 @app.get("/albums/{album_id}/comments", response_model=List[schemas.AlbumComment])
@@ -296,6 +351,12 @@ def read_comments_for_album(album_id: str, skip: int = 0, limit: int = 100, db: 
     if db_album is None:
         raise HTTPException(status_code=404, detail="Album not found")
     comments = crud.get_album_comments(db, album_id=album_id, skip=skip, limit=limit)
+    
+    # Convert datetime fields to strings
+    for comment in comments:
+        comment.created = convert_datetime_to_iso8601(comment.created)
+        comment.modified = convert_datetime_to_iso8601(comment.modified)
+    
     return comments
 
 
