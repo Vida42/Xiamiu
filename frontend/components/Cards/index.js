@@ -1,11 +1,13 @@
 import AlbumCard from './AlbumCard';
-import SongCard from './SongCard';
 import ArtistCard from './ArtistCard';
+import CollectionCard from './CollectionCard';
 import GenreCard from './GenreCard';
+import SongCard from './SongCard';
 
 export {
   AlbumCard,
-  SongCard,
   ArtistCard,
+  CollectionCard,
   GenreCard,
-}; 
+  SongCard,
+};

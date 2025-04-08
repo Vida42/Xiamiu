@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { Box, Heading, Text, Image, SimpleGrid, Tabs, TabList, Tab, TabPanels, TabPanel, Flex, Badge, Link, Divider, HStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Text, Image, SimpleGrid, Flex, Badge, Link, Divider, useColorModeValue, Button } from '@chakra-ui/react';
 import { api } from '../../utils/api';
-import { AlbumCard } from '../../components/Cards';
+import { AlbumCard, CollectionCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 
 // Reusable SectionHeader component similar to the one in index.js
@@ -31,11 +31,26 @@ export default function ArtistDetail() {
   const [artistMeta, setArtistMeta] = useState(null);
   const [albums, setAlbums] = useState([]);
   const [filteredAlbums, setFilteredAlbums] = useState([]);
+  const [displayedAlbums, setDisplayedAlbums] = useState([]);
+  const [songs, setSongs] = useState([]);
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState('All');
+  
+  // Collections data
+  const [songsByStarRating, setSongsByStarRating] = useState({
+    5: [],
+    4: [],
+    3: [],
+    2: [],
+    1: []
+  });
+
+  // Pagination for albums
+  const albumsPerPage = 8;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const albumCategories = [
     { value: 'All', label: '全部' },
@@ -77,6 +92,35 @@ export default function ArtistDetail() {
           console.log('No comments available for this artist');
         }
         
+        // Fetch all songs from all albums to create collections
+        try {
+          const allSongs = [];
+          for (const album of albumsData) {
+            const albumSongs = await api.getAlbumSongs(album.album_id);
+            allSongs.push(...albumSongs);
+          }
+          setSongs(allSongs);
+          
+          // Group songs by star rating
+          const groupedSongs = {
+            5: [],
+            4: [],
+            3: [],
+            2: [],
+            1: []
+          };
+          
+          allSongs.forEach(song => {
+            if (song.star >= 1 && song.star <= 5) {
+              groupedSongs[song.star].push(song);
+            }
+          });
+          
+          setSongsByStarRating(groupedSongs);
+        } catch (songsErr) {
+          console.log('Error fetching songs for collections', songsErr);
+        }
+        
       } catch (err) {
         console.error('Error fetching artist data:', err);
         setError('Failed to load artist details. Please try again later.');
@@ -113,7 +157,16 @@ export default function ArtistDetail() {
     }
     
     setFilteredAlbums(sorted);
+    // Reset to first page when sort changes
+    setCurrentPage(1);
   }, [activeTab, albums, activeCategoryFilter]);
+
+  // Update displayed albums based on pagination
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * albumsPerPage;
+    const endIndex = startIndex + albumsPerPage;
+    setDisplayedAlbums(filteredAlbums.slice(startIndex, endIndex));
+  }, [filteredAlbums, currentPage, albumsPerPage]);
 
   const renderCategoryFilters = () => {
     const activeBg = useColorModeValue('black', 'gray.900');
@@ -153,6 +206,37 @@ export default function ArtistDetail() {
     );
   };
 
+  const renderPagination = () => {
+    const totalPages = Math.ceil(filteredAlbums.length / albumsPerPage);
+    if (totalPages <= 1) return null;
+
+    return (
+      <Flex justify="center" mt={6} gap={2}>
+        <Button 
+          size="sm" 
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          isDisabled={currentPage === 1}
+          colorScheme="orange"
+          variant="outline"
+        >
+          Previous
+        </Button>
+        <Text alignSelf="center" fontSize="sm">
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button 
+          size="sm" 
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          isDisabled={currentPage === totalPages}
+          colorScheme="orange"
+          variant="outline"
+        >
+          Next
+        </Button>
+      </Flex>
+    );
+  };
+
   const renderContent = () => {
     if (!id) return null;
 
@@ -186,6 +270,9 @@ export default function ArtistDetail() {
         </Box>
       );
     }
+
+    // Check if there are any songs with star ratings
+    const hasCollections = Object.values(songsByStarRating).some(songs => songs.length > 0);
 
     return (
       <Box>
@@ -261,15 +348,44 @@ export default function ArtistDetail() {
               {filteredAlbums.length === 0 ? (
                 <Text>No albums found for this artist.</Text>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 3, lg: 4 }} spacing={3}>
-                  {filteredAlbums.map(album => (
-                    <AlbumCard key={album.album_id} album={album} />
-                  ))}
-                </SimpleGrid>
+                <>
+                  <SimpleGrid columns={{ base: 1, md: 3, lg: 4 }} spacing={3}>
+                    {displayedAlbums.map(album => (
+                      <AlbumCard key={album.album_id} album={album} />
+                    ))}
+                  </SimpleGrid>
+                  {renderPagination()}
+                </>
               )}
             </Box>
           </Box>
         </Box>
+        
+        {/* Collections section with SectionHeader - only show if there are collections */}
+        {hasCollections && (
+          <Box mt={12}>
+            <SectionHeader 
+              title={`${artist.name} Collections`} 
+            />
+            
+            <Box p={4}>
+              <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={4}>
+                {[5, 4, 3, 2, 1].map(starRating => {
+                  const songsCount = songsByStarRating[starRating]?.length || 0;
+                  // Only show collections that have at least one song
+                  return songsCount > 0 ? (
+                    <CollectionCard 
+                      key={starRating} 
+                      artistId={id} 
+                      starRating={starRating} 
+                      songCount={songsCount} 
+                    />
+                  ) : null;
+                }).filter(Boolean)}
+              </SimpleGrid>
+            </Box>
+          </Box>
+        )}
         
         {/* Comments section with SectionHeader */}
         <Box mt={12} mb={8}>

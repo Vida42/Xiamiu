@@ -1,10 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { Box, Heading, Text, Image, SimpleGrid, Tabs, TabList, Tab, TabPanels, TabPanel, Flex, Badge, Link, Divider, HStack, Icon, Table, Thead, Tbody, Tr, Td, VStack } from '@chakra-ui/react';
+import { Box, Heading, Text, Image, Flex, Badge, Link, Divider, Table, Thead, Tbody, Tr, Td, Th, VStack } from '@chakra-ui/react';
 import { api } from '../../utils/api';
-import { SongCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+
+// SectionHeader component for consistent styling
+const SectionHeader = ({ title }) => {
+  return (
+    <Flex justify="space-between" align="center" mb={4}>
+      <Heading 
+        size="md" 
+        fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif"
+        color="black"
+        fontWeight="bold"
+      >
+        {title}
+      </Heading>
+    </Flex>
+  );
+};
 
 export default function AlbumDetail() {
   const router = useRouter();
@@ -16,7 +31,6 @@ export default function AlbumDetail() {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchAlbumData = async () => {
@@ -183,86 +197,91 @@ export default function AlbumDetail() {
           </Flex>
         </Box>
         
-        <Box 
-          className="detail-tabs"
-          mt={8}
-        >
-          <Flex 
-            as="ul" 
-            className="bottom-ul-menu"
-            mb={4}
-          >
-            <Box as="li" className={activeTab === 0 ? "active" : ""}>
-              <Link onClick={() => setActiveTab(0)}>
-                Songs ({songs.length})
-              </Link>
-            </Box>
-            <Box as="li" className={activeTab === 1 ? "active" : ""}>
-              <Link onClick={() => setActiveTab(1)}>
-                Comments ({comments.length})
-              </Link>
-            </Box>
-          </Flex>
+        {/* Songs Section */}
+        <Box mt={8} mb={8}>
+          <SectionHeader title={`Songs (${songs.length})`} />
           
-          {activeTab === 0 ? (
-            <Box>
-              {songs.length === 0 ? (
-                <Text py={4}>No songs available for this album.</Text>
-              ) : (
-                <Box mt={4} borderWidth="1px" borderRadius="lg" overflow="hidden">
-                  <Table variant="simple">
-                    <Tbody>
-                      {songs.map((song, index) => (
-                        <Tr key={song.song_id} _hover={{ bg: "gray.50" }}>
-                          <Td width="50px" color="gray.500">{index + 1}</Td>
-                          <Td>
-                            <NextLink href={`/songs/${song.song_id}`} passHref legacyBehavior>
-                              <Link fontWeight="medium" color="blue.600">
-                                {song.name}
-                              </Link>
-                            </NextLink>
-                          </Td>
-                          <Td isNumeric>
-                            <Badge colorScheme="yellow">
-                              {Array.from({ length: song.star }).map((_, i) => (
-                                <span key={i}>⭐</span>
-                              ))}
-                            </Badge>
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </Box>
-              )}
-            </Box>
+          {songs.length === 0 ? (
+            <Text py={4}>No songs available for this album.</Text>
           ) : (
-            <Box>
-              {comments.length === 0 ? (
-                <Text py={4}>No comments available for this album.</Text>
-              ) : (
-                <Box mt={4}>
-                  {comments.map(comment => (
-                    <Box 
-                      key={comment.id} 
-                      p={4} 
-                      borderWidth="1px" 
-                      borderRadius="md"
-                      mb={4}
-                    >
-                      <Text>{comment.comment}</Text>
-                      <Flex mt={2} justify="space-between" alignItems="center">
-                        <Text fontSize="sm" color="gray.500">
-                          Posted on {new Date(comment.review_date).toLocaleDateString()}
-                        </Text>
-                        <Badge colorScheme="green">
-                          {comment.num_like} likes
-                        </Badge>
-                      </Flex>
-                    </Box>
+            <Box mt={4}>
+              <Table variant="simple" size="md">
+                <Thead>
+                  <Tr borderBottom="1px solid" borderColor="gray.200">
+                    <Th width="60px" textAlign="center" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>#</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Song</Th>
+                    <Th width="120px" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Rating</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Artist</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {songs.map((song, index) => (
+                    <Tr key={song.song_id} borderBottom="1px solid" borderColor="gray.100">
+                      <Td textAlign="center" color="gray.500" fontSize="sm" py={3}>{index + 1}</Td>
+                      <Td py={3}>
+                        <NextLink href={`/songs/${song.song_id}`} passHref legacyBehavior>
+                          <Link 
+                            color="black" 
+                            _hover={{ textDecoration: 'underline' }}
+                            fontSize="sm"
+                          >
+                            {song.name}
+                          </Link>
+                        </NextLink>
+                      </Td>
+                      <Td py={3}>
+                        {Array.from({ length: song.star }).map((_, i) => (
+                          <Text as="span" key={i} fontSize="xs">⭐</Text>
+                        ))}
+                      </Td>
+                      <Td py={3}>
+                        {artist && (
+                          <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
+                            <Link 
+                              color="gray.600" 
+                              fontSize="sm"
+                              _hover={{ textDecoration: 'underline' }}
+                            >
+                              {artist.name}
+                            </Link>
+                          </NextLink>
+                        )}
+                      </Td>
+                    </Tr>
                   ))}
+                </Tbody>
+              </Table>
+            </Box>
+          )}
+        </Box>
+        
+        {/* Comments Section */}
+        <Box mt={8} mb={8}>
+          <SectionHeader title={`Comments (${comments.length})`} />
+          
+          {comments.length === 0 ? (
+            <Text py={4}>No comments available for this album.</Text>
+          ) : (
+            <Box mt={4}>
+              {comments.map(comment => (
+                <Box 
+                  key={comment.id} 
+                  p={4} 
+                  borderWidth="1px" 
+                  borderRadius="md"
+                  mb={4}
+                >
+                  <Text>{comment.comment}</Text>
+                  <Flex mt={2} justify="space-between" alignItems="center">
+                    <Text fontSize="sm" color="gray.500">
+                      Posted on {new Date(comment.review_date).toLocaleDateString()}
+                    </Text>
+                    <Badge colorScheme="green">
+                      {comment.num_like} likes
+                    </Badge>
+                  </Flex>
                 </Box>
-              )}
+              ))}
             </Box>
           )}
         </Box>
