@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Heading, Text, SimpleGrid, Box, Divider, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
+import { Heading, Text, SimpleGrid, Box, Divider, Tabs, TabList, TabPanels, Tab, TabPanel, Flex, Link } from '@chakra-ui/react';
 import { api } from '../utils/api';
 import { ArtistCard, AlbumCard, SongCard } from '../components/Cards';
 import XiamiuLayout from '../components/Layout/XiamiuLayout';
 
 export default function Search() {
   const router = useRouter();
-  const { q } = router.query;
+  const { q, type } = router.query;
   const [searchResults, setSearchResults] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -20,6 +21,23 @@ export default function Search() {
         setIsLoading(true);
         const results = await api.search(q);
         setSearchResults(results);
+        
+        // Set the active tab based on search type
+        if (type) {
+          switch (type) {
+            case 'artist':
+              setActiveTabIndex(1);
+              break;
+            case 'album':
+              setActiveTabIndex(2);
+              break;
+            case 'song':
+              setActiveTabIndex(3);
+              break;
+            default:
+              setActiveTabIndex(0);
+          }
+        }
       } catch (err) {
         console.error('Error searching:', err);
         setError('An error occurred while searching. Please try again.');
@@ -29,7 +47,7 @@ export default function Search() {
     };
 
     fetchSearchResults();
-  }, [q]);
+  }, [q, type]);
 
   const renderContent = () => {
     if (!q) {
@@ -53,7 +71,7 @@ export default function Search() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Searching for "{q}"</Heading>
+          <Heading mb={4}>Searching for "{q}"{type ? ` in ${type}s` : ''}</Heading>
           <Text>Loading results...</Text>
         </Box>
       );
@@ -69,87 +87,127 @@ export default function Search() {
     if (!hasResults) {
       return (
         <Box textAlign="center" py={10}>
-          <Text fontSize="lg">No results found for "{q}"</Text>
+          <Text fontSize="lg">No results found for "{q}"{type ? ` in ${type}s` : ''}</Text>
           <Text mt={2}>Try searching for something else.</Text>
         </Box>
       );
     }
 
+    // Filter results based on type if specified
+    let filteredResults = { ...searchResults };
+    if (type === 'artist') {
+      filteredResults = { 
+        artists: searchResults.artists, 
+        albums: [], 
+        songs: [] 
+      };
+    } else if (type === 'album') {
+      filteredResults = { 
+        artists: [], 
+        albums: searchResults.albums, 
+        songs: [] 
+      };
+    } else if (type === 'song') {
+      filteredResults = { 
+        artists: [], 
+        albums: [], 
+        songs: searchResults.songs 
+      };
+    }
+
     return (
       <Box>
-        <Heading mb={6}>Search Results for "{q}"</Heading>
+        <Heading mb={6}>Search Results for "{q}"{type ? ` in ${type}s` : ''}</Heading>
         
-        <Tabs isLazy>
-          <TabList>
-            <Tab>All Results</Tab>
-            <Tab>Artists ({searchResults.artists?.length || 0})</Tab>
-            <Tab>Albums ({searchResults.albums?.length || 0})</Tab>
-            <Tab>Songs ({searchResults.songs?.length || 0})</Tab>
-          </TabList>
+        <Flex 
+          as="ul" 
+          className="bottom-ul-menu"
+          mb={6}
+        >
+          <Box as="li" className={activeTabIndex === 0 ? "active" : ""}>
+            <Link onClick={() => setActiveTabIndex(0)}>
+              All Results
+            </Link>
+          </Box>
+          <Box as="li" className={activeTabIndex === 1 ? "active" : ""}>
+            <Link onClick={() => setActiveTabIndex(1)}>
+              Artists ({searchResults.artists?.length || 0})
+            </Link>
+          </Box>
+          <Box as="li" className={activeTabIndex === 2 ? "active" : ""}>
+            <Link onClick={() => setActiveTabIndex(2)}>
+              Albums ({searchResults.albums?.length || 0})
+            </Link>
+          </Box>
+          <Box as="li" className={activeTabIndex === 3 ? "active" : ""}>
+            <Link onClick={() => setActiveTabIndex(3)}>
+              Songs ({searchResults.songs?.length || 0})
+            </Link>
+          </Box>
+        </Flex>
 
-          <TabPanels>
-            <TabPanel>
-              {searchResults.artists?.length > 0 && (
-                <Box mb={8}>
-                  <Heading size="md" mb={4}>Artists</Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-                    {searchResults.artists.map(artist => (
-                      <ArtistCard key={artist.artist_id} artist={artist} />
-                    ))}
-                  </SimpleGrid>
-                  <Divider my={6} />
-                </Box>
-              )}
+        {activeTabIndex === 0 && (
+          <Box>
+            {filteredResults.artists?.length > 0 && (
+              <Box mb={8}>
+                <Heading size="md" mb={4}>Artists</Heading>
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+                  {filteredResults.artists.map(artist => (
+                    <ArtistCard key={artist.artist_id} artist={artist} />
+                  ))}
+                </SimpleGrid>
+                <Divider my={6} />
+              </Box>
+            )}
 
-              {searchResults.albums?.length > 0 && (
-                <Box mb={8}>
-                  <Heading size="md" mb={4}>Albums</Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-                    {searchResults.albums.map(album => (
-                      <AlbumCard key={album.album_id} album={album} />
-                    ))}
-                  </SimpleGrid>
-                  <Divider my={6} />
-                </Box>
-              )}
+            {filteredResults.albums?.length > 0 && (
+              <Box mb={8}>
+                <Heading size="md" mb={4}>Albums</Heading>
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+                  {filteredResults.albums.map(album => (
+                    <AlbumCard key={album.album_id} album={album} />
+                  ))}
+                </SimpleGrid>
+                <Divider my={6} />
+              </Box>
+            )}
 
-              {searchResults.songs?.length > 0 && (
-                <Box>
-                  <Heading size="md" mb={4}>Songs</Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-                    {searchResults.songs.map(song => (
-                      <SongCard key={song.song_id} song={song} />
-                    ))}
-                  </SimpleGrid>
-                </Box>
-              )}
-            </TabPanel>
+            {filteredResults.songs?.length > 0 && (
+              <Box>
+                <Heading size="md" mb={4}>Songs</Heading>
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+                  {filteredResults.songs.map(song => (
+                    <SongCard key={song.song_id} song={song} />
+                  ))}
+                </SimpleGrid>
+              </Box>
+            )}
+          </Box>
+        )}
 
-            <TabPanel>
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-                {searchResults.artists?.map(artist => (
-                  <ArtistCard key={artist.artist_id} artist={artist} />
-                ))}
-              </SimpleGrid>
-            </TabPanel>
+        {activeTabIndex === 1 && (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {searchResults.artists?.map(artist => (
+              <ArtistCard key={artist.artist_id} artist={artist} />
+            ))}
+          </SimpleGrid>
+        )}
 
-            <TabPanel>
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-                {searchResults.albums?.map(album => (
-                  <AlbumCard key={album.album_id} album={album} />
-                ))}
-              </SimpleGrid>
-            </TabPanel>
+        {activeTabIndex === 2 && (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+            {searchResults.albums?.map(album => (
+              <AlbumCard key={album.album_id} album={album} />
+            ))}
+          </SimpleGrid>
+        )}
 
-            <TabPanel>
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-                {searchResults.songs?.map(song => (
-                  <SongCard key={song.song_id} song={song} />
-                ))}
-              </SimpleGrid>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        {activeTabIndex === 3 && (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+            {searchResults.songs?.map(song => (
+              <SongCard key={song.song_id} song={song} />
+            ))}
+          </SimpleGrid>
+        )}
       </Box>
     );
   };

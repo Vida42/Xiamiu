@@ -101,4 +101,65 @@ a {
 
 .xiami-bg-orange {
   background-color: #f60;
-} 
+}
+
+/* Navigation menus */
+.bottom-ul-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /*background-color: #f2f2f2;*/
+  border-bottom: 1px solid #e5e5e5;
+  height: 35px;
+  line-height: 35px;
+  display: flex;
+}
+
+.bottom-ul-menu li {
+  display: inline-block;
+  margin-right: 0;
+}
+
+.bottom-ul-menu li a {
+  display: inline-block;
+  height: 100%;
+  padding: 0 20px;
+  line-height: 35px;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  color: #333;
+}
+
+.bottom-ul-menu li.active {
+    background-color: black;
+}
+
+.bottom-ul-menu li.active a {
+    color: #ffffff;
+  /*  position: relative;*/
+}
+
+.bottom-ul-menu li:hover a {
+  background-color: #f60;
+  color: #fff;
+}
+
+/* Home page specific styles */
+.home-playlists .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.home-playlists .section-header h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+}
+
+.home-playlists .section-header .more {
+  font-size: 12px;
+  color: #f60;
+}

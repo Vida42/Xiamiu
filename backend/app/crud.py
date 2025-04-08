@@ -20,6 +20,24 @@ def create_genre(db: Session, genre: schemas.GenreCreate):
     db.refresh(db_genre)
     return db_genre
 
+def get_artists_by_genre(db: Session, genre_id: int, skip: int = 0, limit: int = 100):
+    # Get the genre
+    genre = db.query(models.Genre).filter(models.Genre.id == genre_id).first()
+    if not genre:
+        return []
+    
+    # Return artists associated with this genre through the many-to-many relationship
+    return genre.artists[skip:skip+limit]
+
+def get_albums_by_genre(db: Session, genre_id: int, skip: int = 0, limit: int = 100):
+    # Get the genre
+    genre = db.query(models.Genre).filter(models.Genre.id == genre_id).first()
+    if not genre:
+        return []
+    
+    # Return albums associated with this genre through the many-to-many relationship
+    return genre.albums[skip:skip+limit]
+
 
 # Artist operations
 def get_artist(db: Session, artist_id: str):
@@ -40,6 +58,9 @@ def create_artist(db: Session, artist: schemas.ArtistCreate):
     db.commit()
     db.refresh(db_artist)
     return db_artist
+
+def get_artists_by_reign(db: Session, reign: str, skip: int = 0, limit: int = 100):
+    return db.query(models.Artist).filter(models.Artist.reign == reign).offset(skip).limit(limit).all()
 
 
 # Album operations
@@ -74,6 +95,9 @@ def create_album(db: Session, album: schemas.AlbumCreate):
     db.commit()
     db.refresh(db_album)
     return db_album
+
+def get_albums_by_language(db: Session, album_lan: str, skip: int = 0, limit: int = 100):
+    return db.query(models.Album).filter(models.Album.album_lan == album_lan).offset(skip).limit(limit).all()
 
 
 # Song operations
