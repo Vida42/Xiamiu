@@ -64,6 +64,15 @@ export const api = {
       throw error;
     }
   },
+  getArtistsByReign: async (reign) => {
+    try {
+      const response = await apiClient.get(`/artists/reign/${reign}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching artists by reign ${reign}:`, error);
+      throw error;
+    }
+  },
   getArtist: async (id) => {
     try {
       const response = await apiClient.get(`/artists/${id}`);

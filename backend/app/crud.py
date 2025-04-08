@@ -59,6 +59,9 @@ def create_artist(db: Session, artist: schemas.ArtistCreate):
     db.refresh(db_artist)
     return db_artist
 
+def get_artists_by_reign(db: Session, reign: str, skip: int = 0, limit: int = 100):
+    return db.query(models.Artist).filter(models.Artist.reign == reign).offset(skip).limit(limit).all()
+
 
 # Album operations
 def get_album(db: Session, album_id: str):
