@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from . import models
 from . import schemas
+from .utils import get_password_hash, verify_password
 
 
 # Genre operations
@@ -133,6 +134,7 @@ def create_song(db: Session, song: schemas.SongCreate):
 def get_song_meta(db: Session, song_id: str):
     return db.query(models.SongMeta).filter(models.SongMeta.song_id == song_id).first()
 
+
 def create_song_meta(db: Session, meta: schemas.SongMetaCreate):
     db_meta = models.SongMeta(song_id=meta.song_id, lyrics=meta.lyrics)
     db.add(db_meta)
@@ -140,8 +142,10 @@ def create_song_meta(db: Session, meta: schemas.SongMetaCreate):
     db.refresh(db_meta)
     return db_meta
 
+
 def get_artist_meta(db: Session, artist_id: str):
     return db.query(models.ArtistMeta).filter(models.ArtistMeta.artist_id == artist_id).first()
+
 
 def create_artist_meta(db: Session, meta: schemas.ArtistMetaCreate):
     db_meta = models.ArtistMeta(
@@ -154,8 +158,10 @@ def create_artist_meta(db: Session, meta: schemas.ArtistMetaCreate):
     db.refresh(db_meta)
     return db_meta
 
+
 def get_album_meta(db: Session, album_id: str):
     return db.query(models.AlbumMeta).filter(models.AlbumMeta.album_id == album_id).first()
+
 
 def create_album_meta(db: Session, meta: schemas.AlbumMetaCreate):
     db_meta = models.AlbumMeta(
@@ -173,15 +179,20 @@ def create_album_meta(db: Session, meta: schemas.AlbumMetaCreate):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
+
 def get_user_by_name(db: Session, user_name: str):
     return db.query(models.User).filter(models.User.user_name == user_name).first()
+
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
+
 def create_user(db: Session, user: schemas.UserCreate):
+    hashed_password = get_password_hash(user.password)
     db_user = models.User(
         user_name=user.user_name,
+        password=hashed_password,
         location=user.location,
         age=user.age,
         gender=user.gender,
@@ -193,6 +204,27 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = get_user_by_name(db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.password):
+        return False
+    return user
+
+
+def get_user_song_comments(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(models.SongComment).filter(models.SongComment.user_id == user_id).offset(skip).limit(limit).all()
+
+
+def get_user_artist_comments(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(models.ArtistComment).filter(models.ArtistComment.user_id == user_id).offset(skip).limit(limit).all()
+
+
+def get_user_album_comments(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(models.AlbumComment).filter(models.AlbumComment.user_id == user_id).offset(skip).limit(limit).all()
 
 
 # Comment operations
@@ -209,8 +241,10 @@ def create_song_comment(db: Session, comment: schemas.SongCommentCreate):
     db.refresh(db_comment)
     return db_comment
 
+
 def get_song_comments(db: Session, song_id: str, skip: int = 0, limit: int = 100):
     return db.query(models.SongComment).filter(models.SongComment.song_id == song_id).offset(skip).limit(limit).all()
+
 
 def create_artist_comment(db: Session, comment: schemas.ArtistCommentCreate):
     db_comment = models.ArtistComment(
@@ -225,9 +259,10 @@ def create_artist_comment(db: Session, comment: schemas.ArtistCommentCreate):
     db.refresh(db_comment)
     return db_comment
 
+
 def get_artist_comments(db: Session, artist_id: str, skip: int = 0, limit: int = 100):
-    return db.query(models.ArtistComment).filter(
-        models.ArtistComment.artist_id == artist_id).offset(skip).limit(limit).all()
+    return db.query(models.ArtistComment).filter(models.ArtistComment.artist_id == artist_id).offset(skip).limit(limit).all()
+
 
 def create_album_comment(db: Session, comment: schemas.AlbumCommentCreate):
     db_comment = models.AlbumComment(
@@ -242,9 +277,9 @@ def create_album_comment(db: Session, comment: schemas.AlbumCommentCreate):
     db.refresh(db_comment)
     return db_comment
 
+
 def get_album_comments(db: Session, album_id: str, skip: int = 0, limit: int = 100):
-    return db.query(models.AlbumComment).filter(
-        models.AlbumComment.album_id == album_id).offset(skip).limit(limit).all()
+    return db.query(models.AlbumComment).filter(models.AlbumComment.album_id == album_id).offset(skip).limit(limit).all()
 
 
 # Search operations
@@ -252,8 +287,9 @@ def search_all(db: Session, query: str):
     artists = search_artists_by_name(db, query)
     albums = search_albums_by_name(db, query)
     songs = search_songs_by_name(db, query)
+    
     return {
         "artists": artists,
         "albums": albums,
         "songs": songs
-    } 
+    }

@@ -128,8 +128,9 @@ class AlbumMeta(Base):
 class User(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_name: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    password: Mapped[str] = mapped_column(String(100))
     location: Mapped[str] = mapped_column(String(50))
-    user_name: Mapped[str] = mapped_column(String(50))
     age: Mapped[int] = mapped_column(Integer)
     gender: Mapped[str] = mapped_column(String(50))
     constellation: Mapped[str] = mapped_column(String(50))
