@@ -15,6 +15,13 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   config => {
     console.log(`Making request to: ${config.url}`);
+    
+    // Add token to requests if user is logged in
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     return config;
   },
   error => {
@@ -34,6 +41,11 @@ apiClient.interceptors.response.use(
       // that falls out of the range of 2xx
       console.log('Error data:', error.response.data);
       console.log('Error status:', error.response.status);
+      
+      // If unauthorized and not already on login page, redirect to login
+      if (error.response.status === 401 && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     } else if (error.request) {
       // The request was made but no response was received
       console.log('No response received:', error.request);
@@ -43,6 +55,75 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
+  // Authentication
+  login: async (username, password) => {
+    try {
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+      
+      const response = await axios.post(`${API_URL}/token`, formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+      
+      localStorage.setItem('access_token', response.data.access_token);
+      return response.data;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  },
+  
+  logout: () => {
+    localStorage.removeItem('access_token');
+  },
+  
+  getCurrentUser: async () => {
+    try {
+      const response = await apiClient.get('/users/me');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      throw error;
+    }
+  },
+  
+  isAuthenticated: () => {
+    return !!localStorage.getItem('access_token');
+  },
+  
+  getUserSongComments: async (userId) => {
+    try {
+      const response = await apiClient.get(`/users/${userId}/comments/songs`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching song comments for user ${userId}:`, error);
+      throw error;
+    }
+  },
+  
+  getUserArtistComments: async (userId) => {
+    try {
+      const response = await apiClient.get(`/users/${userId}/comments/artists`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching artist comments for user ${userId}:`, error);
+      throw error;
+    }
+  },
+  
+  getUserAlbumComments: async (userId) => {
+    try {
+      const response = await apiClient.get(`/users/${userId}/comments/albums`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching album comments for user ${userId}:`, error);
+      throw error;
+    }
+  },
+
   // Search
   search: async (query) => {
     try {
@@ -260,5 +341,5 @@ export const api = {
       console.error(`Error fetching user ${id}:`, error);
       throw error;
     }
-  },
+  }
 };
