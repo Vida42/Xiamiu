@@ -4,6 +4,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const NavLink = ({ href, children, isActive }) => {
   return (
@@ -55,6 +56,7 @@ const XiamiuLayout = ({ children }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState('general');
+  const { user, isAuthenticated, logout } = useAuth();
 
   // Handle search functionality
   const handleSearch = () => {
@@ -71,6 +73,14 @@ const XiamiuLayout = ({ children }) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
+    }
+  };
+
+  // Handle my music link
+  const handleMyMusicClick = (e) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      router.push('/login');
     }
   };
 
@@ -121,7 +131,11 @@ const XiamiuLayout = ({ children }) => {
               <NavLink href="/" isActive={router.pathname === '/'}>
                 发现音乐
               </NavLink>
-              <NavLink href="/my-music" isActive={router.pathname === '/my-music'}>
+              <NavLink 
+                href={isAuthenticated ? `/user/${user?.id}/my-music` : "/my-music"} 
+                isActive={router.pathname === '/my-music' || router.pathname.includes('/user/')}
+                onClick={handleMyMusicClick}
+              >
                 我的音乐
               </NavLink>
             </Flex>
@@ -172,24 +186,53 @@ const XiamiuLayout = ({ children }) => {
 
             {/* Auth Links */}
             <Flex gap={4}>
-              <Box
-                as="button"
-                color="white"
-                _hover={{ textDecoration: 'underline' }}
-                fontSize="14px"
-                fontWeight="medium"
-              >
-                登录
-              </Box>
-              <Box
-                as="button"
-                color="white"
-                _hover={{ textDecoration: 'underline' }}
-                fontSize="14px"
-                fontWeight="medium"
-              >
-                注册
-              </Box>
+              {isAuthenticated ? (
+                <>
+                  <Box
+                    as={NextLink}
+                    href={`/user/${user?.id}`}
+                    color="white"
+                    _hover={{ textDecoration: 'underline' }}
+                    fontSize="14px"
+                    fontWeight="medium"
+                  >
+                    {user?.user_name}
+                  </Box>
+                  <Box
+                    as="button"
+                    color="white"
+                    _hover={{ textDecoration: 'underline' }}
+                    fontSize="14px"
+                    fontWeight="medium"
+                    onClick={logout}
+                  >
+                    退出
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Box
+                    as={NextLink}
+                    href="/login"
+                    color="white"
+                    _hover={{ textDecoration: 'underline' }}
+                    fontSize="14px"
+                    fontWeight="medium"
+                  >
+                    登录
+                  </Box>
+                  <Box
+                    as="button"
+                    color="white"
+                    _hover={{ textDecoration: 'underline' }}
+                    fontSize="14px"
+                    fontWeight="medium"
+                    disabled={true}
+                  >
+                    注册
+                  </Box>
+                </>
+              )}
             </Flex>
           </Flex>
         </Container>

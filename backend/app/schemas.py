@@ -147,7 +147,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 class User(UserBase):
@@ -216,7 +216,22 @@ class AlbumComment(CommentBase):
     }
 
 
-# Response schemas for search
+# Authentication schemas
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+# Search response schema
 class SearchResponse(BaseModel):
     artists: List[Artist] = []
     albums: List[Album] = []

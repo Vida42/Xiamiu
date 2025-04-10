@@ -1,15 +1,19 @@
 import os
 from dotenv import load_dotenv
 from enum import Enum
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import FastAPI, Depends, HTTPException, Query, status, Security
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import timedelta
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from . import crud
 from . import schemas
 from .database import get_db
-from .utils import convert_datetime_to_iso8601
+from .utils import convert_datetime_to_iso8601, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from jose import JWTError, jwt
+from .utils import SECRET_KEY, ALGORITHM
 
 # Load environment variables
 load_dotenv()
@@ -32,16 +36,74 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Not needed when connecting to existing database
-# @app.on_event("startup")
-# def startup_event():
-#     create_tables()
+# Set up OAuth2 with Password Flow
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_user_by_name(db, user_name=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 # Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Xiamiu API"}
+
+
+# Authentication endpoints
+@app.post("/token", response_model=schemas.Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.user_name}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/users/me", response_model=schemas.User)
+async def read_users_me(current_user: schemas.User = Depends(get_current_user)):
+    return current_user
+
+
+@app.get("/users/{user_id}/comments/songs", response_model=List[schemas.SongComment])
+def read_user_song_comments(user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    comments = crud.get_user_song_comments(db, user_id=user_id, skip=skip, limit=limit)
+    return comments
+
+
+@app.get("/users/{user_id}/comments/artists", response_model=List[schemas.ArtistComment])
+def read_user_artist_comments(user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    comments = crud.get_user_artist_comments(db, user_id=user_id, skip=skip, limit=limit)
+    return comments
+
+
+@app.get("/users/{user_id}/comments/albums", response_model=List[schemas.AlbumComment])
+def read_user_album_comments(user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    comments = crud.get_user_album_comments(db, user_id=user_id, skip=skip, limit=limit)
+    return comments
 
 
 # Search endpoint (similar to Django's SearchView)
