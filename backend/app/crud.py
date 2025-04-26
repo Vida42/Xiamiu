@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from . import models
 from . import schemas
 from .utils import get_password_hash, verify_password
+import math
 
 
 # Genre operations
@@ -315,4 +317,104 @@ def search_all(db: Session, query: str):
         "artists": artists,
         "albums": albums,
         "songs": songs
+    }
+
+
+# Rating operations
+def get_song_rating(db: Session, song_id: str):
+    """Calculate the average rating for a song."""
+    result = db.query(
+        func.avg(models.SongComment.star).label("average"),
+        func.count(models.SongComment.id).label("count")
+    ).filter(models.SongComment.song_id == song_id).first()
+    
+    average = 0
+    count = 0
+    
+    if result and result.count > 0:
+        average = round(result.average)  # Round to nearest integer
+        count = result.count
+    
+    return {
+        "song_id": song_id,
+        "average_rating": average,
+        "total_ratings": count
+    }
+
+
+def get_album_rating(db: Session, album_id: str):
+    """Calculate the average rating for an album."""
+    result = db.query(
+        func.avg(models.AlbumComment.star).label("average"),
+        func.count(models.AlbumComment.id).label("count")
+    ).filter(models.AlbumComment.album_id == album_id).first()
+    
+    average = 0.0
+    count = 0
+    stars = 0.0
+    
+    if result and result.count > 0:
+        # Normalize average from 1-100 to 1-10 scale with one decimal place
+        raw_avg = result.average
+        normalized = round((raw_avg / 10), 1)
+        average = normalized
+        count = result.count
+        
+        # Calculate star representation (1-5 stars with half star precision)
+        # 1 point = 0.5 stars, 10 points = 5 stars
+        stars = round((normalized / 2), 1)
+        
+        # Ensure stars is a multiple of 0.5
+        stars = round(stars * 2) / 2
+    
+    return {
+        "album_id": album_id,
+        "average_rating": average,
+        "total_ratings": count,
+        "stars": stars
+    }
+
+
+def get_album_songs_avg_rating(db: Session, album_id: str):
+    """Calculate the average of song ratings for an album."""
+    # Get all songs for this album
+    songs = get_songs_by_album(db, album_id=album_id)
+    song_ids = [song.song_id for song in songs]
+    
+    if not song_ids:
+        return {
+            "album_id": album_id,
+            "average_rating": 0.0,
+            "total_ratings": 0,
+            "stars": 0.0
+        }
+    
+    # Aggregate song ratings
+    total_rating = 0
+    total_count = 0
+    
+    for song_id in song_ids:
+        song_rating = get_song_rating(db, song_id)
+        if song_rating["total_ratings"] > 0:
+            total_rating += song_rating["average_rating"]
+            total_count += 1
+    
+    average = 0.0
+    stars = 0.0
+    
+    if total_count > 0:
+        # Calculate average (1-5 scale)
+        average = total_rating / total_count
+        # Convert to 1-10 scale
+        average = round(average * 2, 1)
+        # Calculate stars (1-5 scale with half star precision)
+        stars = round(average / 2, 1)
+        # Ensure stars is a multiple of 0.5
+        stars = round(stars * 2) / 2
+    
+    return {
+        "album_id": album_id,
+        "average_rating": average,
+        "total_ratings": total_count,
+        "stars": stars
     }

@@ -1,5 +1,6 @@
 import { Box, Image, Text, LinkBox, LinkOverlay, Flex } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { StarRating } from '../../components';
 
 const CollectionCard = ({ artistId, starRating, songCount }) => {
   // Format the collection title based on star rating
@@ -49,9 +50,7 @@ const CollectionCard = ({ artistId, starRating, songCount }) => {
               justifyContent="center"
               alignItems="center"
             >
-              {Array.from({ length: starRating }).map((_, i) => (
-                <Text as="span" key={i} fontSize="16px" lineHeight="1" mr="2px">⭐</Text>
-              ))}
+              <StarRating rating={starRating} maxStars={5} size="md" />
             </Flex>
           </LinkOverlay>
         </NextLink>

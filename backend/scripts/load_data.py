@@ -48,9 +48,6 @@ def load_data():
         # Step 2: Load Artists (they have no dependencies)
         print("Loading artists...")
         for artist in data.get("artists", []):
-            # Handle renamed field if data is from old format
-            if 'reign' in artist and 'region' not in artist:
-                artist['region'] = artist.pop('reign')
             obj = Artist(**artist)
             session.merge(obj)
         session.commit()

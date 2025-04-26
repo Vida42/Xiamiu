@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import date
 
 
@@ -264,3 +264,25 @@ class SearchResponse(BaseModel):
     artists: List[Artist] = []
     albums: List[Album] = []
     songs: List[Song] = []
+
+
+# Rating schemas
+class SongRating(BaseModel):
+    song_id: str
+    average_rating: int = Field(description="Average rating rounded to the nearest integer (1-5)")
+    total_ratings: int = Field(description="Total number of ratings")
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class AlbumRating(BaseModel):
+    album_id: str
+    average_rating: float = Field(description="Average rating normalized to 1-10 scale with one decimal place")
+    total_ratings: int = Field(description="Total number of ratings")
+    stars: float = Field(description="Star representation (1-5 with 0.5 increments)")
+
+    model_config = {
+        "from_attributes": True
+    }

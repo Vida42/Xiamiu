@@ -428,6 +428,37 @@ def read_comments_for_album(album_id: str, skip: int = 0, limit: int = 100, db: 
     return comments
 
 
+# Rating endpoints
+@app.get("/songs/{song_id}/rating", response_model=schemas.SongRating)
+def get_song_rating(song_id: str, db: Session = Depends(get_db)):
+    """Get the average rating for a song."""
+    db_song = crud.get_song(db, song_id=song_id)
+    if db_song is None:
+        raise HTTPException(status_code=404, detail="Song not found")
+    
+    return crud.get_song_rating(db, song_id=song_id)
+
+
+@app.get("/albums/{album_id}/rating", response_model=schemas.AlbumRating)
+def get_album_rating(album_id: str, db: Session = Depends(get_db)):
+    """Get the average rating for an album based on album comments."""
+    db_album = crud.get_album(db, album_id=album_id)
+    if db_album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    
+    return crud.get_album_rating(db, album_id=album_id)
+
+
+@app.get("/albums/{album_id}/songs-rating", response_model=schemas.AlbumRating)
+def get_album_songs_rating(album_id: str, db: Session = Depends(get_db)):
+    """Get the average rating for an album based on its songs' ratings."""
+    db_album = crud.get_album(db, album_id=album_id)
+    if db_album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    
+    return crud.get_album_songs_avg_rating(db, album_id=album_id)
+
+
 # Add this at the end of the file for running the app directly
 if __name__ == "__main__":
     import uvicorn
