@@ -169,9 +169,9 @@ def read_artists(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     return artists
 
 
-@app.get("/artists/reign/{reign}", response_model=List[schemas.Artist])
-def read_artists_by_reign(reign: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    artists = crud.get_artists_by_reign(db, reign=reign, skip=skip, limit=limit)
+@app.get("/artists/region/{region}", response_model=List[schemas.Artist])
+def read_artists_by_region(region: str, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    artists = crud.get_artists_by_region(db, region=region, skip=skip, limit=limit)
     return artists
 
 

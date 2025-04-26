@@ -1,7 +1,9 @@
 # scripts/load_seed_data.py
 import os
+import json
 from pathlib import Path
 from dotenv import load_dotenv
+from sqlalchemy import insert
 
 # Find the .env file - It should be in the backend directory
 script_path = Path(__file__)
@@ -12,19 +14,17 @@ env_path = backend_dir / '.env'
 load_dotenv(dotenv_path=env_path)
 
 # Now import the database connection and other modules
-import json
 from ..app.database import SessionLocal
 from ..app.models import (  # adjust based on your actual model locations
     User, Genre, Artist, Album, Song,
     ArtistMeta, AlbumMeta, SongMeta,
     ArtistComment, AlbumComment, SongComment,
+    artist_genre_link, album_genre_link, song_artist_link
 )
-
-from ..app.models import artist_genre_link, album_genre_link, song_artist_link
-from sqlalchemy import insert
 
 
 def load_data():
+    """Load data from seed_data.json into the database."""
     # Initialize database session
     session = SessionLocal()
     
@@ -48,6 +48,9 @@ def load_data():
         # Step 2: Load Artists (they have no dependencies)
         print("Loading artists...")
         for artist in data.get("artists", []):
+            # Handle renamed field if data is from old format
+            if 'reign' in artist and 'region' not in artist:
+                artist['region'] = artist.pop('reign')
             obj = Artist(**artist)
             session.merge(obj)
         session.commit()
@@ -55,6 +58,9 @@ def load_data():
         # Step 3: Load Albums (depends on artists)
         print("Loading albums...")
         for album in data.get("albums", []):
+            # Remove star field if it exists in data but not in model
+            if 'star' in album:
+                album.pop('star')
             obj = Album(**album)
             session.merge(obj)
         session.commit()
@@ -62,6 +68,9 @@ def load_data():
         # Step 4: Load Songs (depends on albums)
         print("Loading songs...")
         for song in data.get("songs", []):
+            # Handle renamed field if data is from old format
+            if 'star' in song and 'order' not in song:
+                song['order'] = song.pop('star')
             obj = Song(**song)
             session.merge(obj)
         session.commit()
@@ -88,7 +97,43 @@ def load_data():
             session.merge(obj)
         session.commit()
 
-        # Step 7: Load Junction Tables
+        # Step 7: Load Comments
+        print("Loading comments...")
+        for comment in data.get("song_comments", []):
+            # Remove review_date field if it exists in data but not in model
+            # and ensure star field exists
+            if 'review_date' in comment:
+                comment.pop('review_date')
+            if 'star' not in comment:
+                # Default value for star (1-5 range)
+                comment['star'] = 3
+            obj = SongComment(**comment)
+            session.merge(obj)
+        
+        for comment in data.get("artist_comments", []):
+            # Remove review_date field if it exists in data but not in model
+            # and ensure star field exists
+            if 'review_date' in comment:
+                comment.pop('review_date')
+            if 'star' not in comment:
+                # Default middle value for artist star (1-100)
+                comment['star'] = 50
+            obj = ArtistComment(**comment)
+            session.merge(obj)
+        
+        for comment in data.get("album_comments", []):
+            # Remove review_date field if it exists in data but not in model
+            # and ensure star field exists
+            if 'review_date' in comment:
+                comment.pop('review_date')
+            if 'star' not in comment:
+                # Default middle value for album star (1-100)
+                comment['star'] = 50
+            obj = AlbumComment(**comment)
+            session.merge(obj)
+        session.commit()
+
+        # Step 8: Load Junction Tables
         print("Loading artist-genre links...")
         for link in data.get("artist_genre_link", []):
             # Convert genre_id to integer if it's not already
