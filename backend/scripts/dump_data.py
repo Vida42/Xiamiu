@@ -16,6 +16,7 @@ from ..app.database import SessionLocal
 from ..app.models import (
     User, Genre, Artist, Album, Song,
     ArtistMeta, AlbumMeta, SongMeta,
+    SongComment, ArtistComment, AlbumComment,
     artist_genre_link, album_genre_link, song_artist_link
 )
 from sqlalchemy import select
@@ -24,11 +25,11 @@ from sqlalchemy import select
 def dump_data():
     """Dump all data from the database into seed_data.json"""
     print("Starting database dump process...")
-    
+
     session = SessionLocal()
     try:
         data = {}
-        
+
         # Dump Genres
         print("Dumping genres...")
         genres = session.query(Genre).all()
@@ -47,7 +48,7 @@ def dump_data():
             {
                 'artist_id': artist.artist_id,
                 'name': artist.name,
-                'reign': artist.reign
+                'region': artist.region
             } for artist in artists
         ]
 
@@ -62,7 +63,6 @@ def dump_data():
                 'release_date': str(album.release_date),
                 'album_category': album.album_category,
                 'record_label': album.record_label,
-                'star': album.star,
                 'listen_date': str(album.listen_date),
                 'artist_id': album.artist_id
             } for album in albums
@@ -75,7 +75,7 @@ def dump_data():
             {
                 'song_id': song.song_id,
                 'name': song.name,
-                'star': song.star,
+                'order': song.order,
                 'album_id': song.album_id
             } for song in songs
         ]
@@ -124,6 +124,50 @@ def dump_data():
             } for meta in song_metas
         ]
 
+        # Dump Comments
+        print("Dumping comments...")
+        song_comments = session.query(SongComment).all()
+        data['song_comments'] = [
+            {
+                'id': comment.id,
+                'song_id': comment.song_id,
+                'comment': comment.comment,
+                'num_like': comment.num_like,
+                'user_id': comment.user_id,
+                'star': comment.star,
+                'created': comment.created.isoformat() if comment.created else None,
+                'modified': comment.modified.isoformat() if comment.modified else None
+            } for comment in song_comments
+        ]
+
+        artist_comments = session.query(ArtistComment).all()
+        data['artist_comments'] = [
+            {
+                'id': comment.id,
+                'artist_id': comment.artist_id,
+                'comment': comment.comment,
+                'num_like': comment.num_like,
+                'user_id': comment.user_id,
+                'star': comment.star,
+                'created': comment.created.isoformat() if comment.created else None,
+                'modified': comment.modified.isoformat() if comment.modified else None
+            } for comment in artist_comments
+        ]
+
+        album_comments = session.query(AlbumComment).all()
+        data['album_comments'] = [
+            {
+                'id': comment.id,
+                'album_id': comment.album_id,
+                'comment': comment.comment,
+                'num_like': comment.num_like,
+                'user_id': comment.user_id,
+                'star': comment.star,
+                'created': comment.created.isoformat() if comment.created else None,
+                'modified': comment.modified.isoformat() if comment.modified else None
+            } for comment in album_comments
+        ]
+
         # Dump Junction Tables
         print("Dumping relationships...")
         artist_genres = session.execute(select(artist_genre_link)).all()
@@ -153,7 +197,7 @@ def dump_data():
         # Write to file
         backup_dir = backend_dir / 'backup'
         backup_dir.mkdir(exist_ok=True)
-        
+
         json_path = backup_dir / 'seed_data.json'
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)

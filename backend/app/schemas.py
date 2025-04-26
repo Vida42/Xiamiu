@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import date
 
@@ -24,7 +24,7 @@ class Genre(GenreBase):
 # Artist schemas
 class ArtistBase(BaseModel):
     name: str
-    reign: str
+    region: str
 
 
 class ArtistCreate(ArtistBase):
@@ -46,7 +46,6 @@ class AlbumBase(BaseModel):
     release_date: date
     album_category: str
     record_label: str
-    star: int
     listen_date: Optional[date] = None
 
 
@@ -67,7 +66,7 @@ class Album(AlbumBase):
 # Song schemas
 class SongBase(BaseModel):
     name: str
-    star: int
+    order: int
 
 
 class SongCreate(SongBase):
@@ -162,15 +161,24 @@ class User(UserBase):
 class CommentBase(BaseModel):
     comment: str
     num_like: int = 0
-    review_date: date = Field(default_factory=date.today)
 
 
-class SongCommentCreate(CommentBase):
+class SongCommentBase(CommentBase):
+    star: int = Field(..., ge=1, le=5, description="Rating from 1 to 5")
+    
+    @validator('star')
+    def validate_star_range(cls, v):
+        if v < 1 or v > 5:
+            raise ValueError('Song star rating must be between 1 and 5')
+        return v
+
+
+class SongCommentCreate(SongCommentBase):
     song_id: str
     user_id: int
 
 
-class SongComment(CommentBase):
+class SongComment(SongCommentBase):
     id: int
     song_id: str
     user_id: int
@@ -182,12 +190,22 @@ class SongComment(CommentBase):
     }
 
 
-class ArtistCommentCreate(CommentBase):
+class ArtistCommentBase(CommentBase):
+    star: int = Field(..., ge=1, le=100, description="Rating from 1 to 100")
+    
+    @validator('star')
+    def validate_star_range(cls, v):
+        if v < 1 or v > 100:
+            raise ValueError('Artist star rating must be between 1 and 100')
+        return v
+
+
+class ArtistCommentCreate(ArtistCommentBase):
     artist_id: str
     user_id: int
 
 
-class ArtistComment(CommentBase):
+class ArtistComment(ArtistCommentBase):
     id: int
     artist_id: str
     user_id: int
@@ -199,12 +217,22 @@ class ArtistComment(CommentBase):
     }
 
 
-class AlbumCommentCreate(CommentBase):
+class AlbumCommentBase(CommentBase):
+    star: int = Field(..., ge=1, le=100, description="Rating from 1 to 100")
+    
+    @validator('star')
+    def validate_star_range(cls, v):
+        if v < 1 or v > 100:
+            raise ValueError('Album star rating must be between 1 and 100')
+        return v
+
+
+class AlbumCommentCreate(AlbumCommentBase):
     album_id: str
     user_id: int
 
 
-class AlbumComment(CommentBase):
+class AlbumComment(AlbumCommentBase):
     id: int
     album_id: str
     user_id: int

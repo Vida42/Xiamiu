@@ -52,7 +52,7 @@ class Artist(Base):
     __tablename__ = 'artists'
     artist_id: Mapped[str] = mapped_column(String(20), primary_key=True)
     name: Mapped[str] = mapped_column(String(50), index=True)
-    reign: Mapped[str] = mapped_column(String(50))
+    region: Mapped[str] = mapped_column(String(50))
     
     # Relationships
     genres = relationship("Genre", secondary=artist_genre_link, back_populates="artists")
@@ -71,7 +71,6 @@ class Album(Base):
     release_date: Mapped[date] = mapped_column(Date)
     album_category: Mapped[str] = mapped_column(String(20))
     record_label: Mapped[str] = mapped_column(String(50))
-    star: Mapped[int] = mapped_column(Integer)
     listen_date: Mapped[date] = mapped_column(Date, nullable=True)
     
     # Relationships
@@ -86,7 +85,7 @@ class Song(Base):
     __tablename__ = 'songs'
     song_id: Mapped[str] = mapped_column(String(20), primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
-    star: Mapped[int] = mapped_column(Integer)
+    order: Mapped[int] = mapped_column(Integer)
     album_id: Mapped[str] = mapped_column(String(20), ForeignKey('albums.album_id'))
     
     # Relationships
@@ -149,8 +148,8 @@ class SongComment(Base, BaseModel):
     song_id: Mapped[str] = mapped_column(String(20), ForeignKey('songs.song_id'))
     comment: Mapped[str] = mapped_column(String(255))
     num_like: Mapped[int] = mapped_column(Integer, default=0)
-    review_date: Mapped[date] = mapped_column(Date, default=date.today)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
+    star: Mapped[int] = mapped_column(Integer)
     
     # Relationships
     song = relationship("Song", back_populates="comments")
@@ -163,8 +162,8 @@ class ArtistComment(Base, BaseModel):
     artist_id: Mapped[str] = mapped_column(String(20), ForeignKey('artists.artist_id'))
     comment: Mapped[str] = mapped_column(String(255))
     num_like: Mapped[int] = mapped_column(Integer, default=0)
-    review_date: Mapped[date] = mapped_column(Date, default=date.today)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
+    star: Mapped[int] = mapped_column(Integer)
     
     # Relationships
     artist = relationship("Artist", back_populates="comments")
@@ -177,8 +176,8 @@ class AlbumComment(Base, BaseModel):
     album_id: Mapped[str] = mapped_column(String(20), ForeignKey('albums.album_id'))
     comment: Mapped[str] = mapped_column(String(255))
     num_like: Mapped[int] = mapped_column(Integer, default=0)
-    review_date: Mapped[date] = mapped_column(Date, default=date.today)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
+    star: Mapped[int] = mapped_column(Integer)
     
     # Relationships
     album = relationship("Album", back_populates="comments")
