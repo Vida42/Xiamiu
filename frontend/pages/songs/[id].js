@@ -30,6 +30,7 @@ export default function SongDetail() {
   const [albumMeta, setAlbumMeta] = useState(null);
   const [artist, setArtist] = useState(null);
   const [comments, setComments] = useState([]);
+  const [songRating, setSongRating] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -43,6 +44,14 @@ export default function SongDetail() {
         // Fetch song details
         const songData = await api.getSong(id);
         setSong(songData);
+        
+        // Fetch song rating
+        try {
+          const ratingData = await api.getSongRating(id);
+          setSongRating(ratingData);
+        } catch (ratingErr) {
+          console.log('No rating available for this song');
+        }
         
         // Fetch album details
         if (songData.album_id) {
@@ -149,7 +158,7 @@ export default function SongDetail() {
                 fallbackSrc="/album-placeholder.svg"
               />
               <Flex justify="center" mt={2}>
-                {Array.from({ length: song.star }).map((_, i) => (
+                {songRating && Array.from({ length: songRating.average_rating }).map((_, i) => (
                   <Text key={i} fontSize="xl">⭐</Text>
                 ))}
               </Flex>
@@ -186,7 +195,11 @@ export default function SongDetail() {
                   
                   <Flex>
                     <Text width="120px" fontWeight="medium">Rating:</Text>
-                    <Text>{song.star} / 5</Text>
+                    {songRating ? (
+                      <Text>{songRating.average_rating}</Text>
+                    ) : (
+                      <Text>No ratings yet</Text>
+                    )}
                   </Flex>
                 </VStack>
               </Box>

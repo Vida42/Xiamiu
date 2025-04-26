@@ -46,7 +46,7 @@ const ArtistCard = ({ artist }) => {
             </LinkOverlay>
           </NextLink>
           <Text color="gray.500" fontSize="xs">
-            {artist.reign}
+            {artist.region}
           </Text>
         </Box>
       </Box>

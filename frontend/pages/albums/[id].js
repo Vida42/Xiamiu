@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import { Box, Heading, Text, Image, Flex, Badge, Link, Divider, Table, Thead, Tbody, Tr, Td, Th, VStack } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { StarRating } from '../../components';
 
 // SectionHeader component for consistent styling
 const SectionHeader = ({ title }) => {
@@ -21,6 +22,23 @@ const SectionHeader = ({ title }) => {
   );
 };
 
+// Function to render star rating with half-stars support
+const renderStars = (rating) => {
+  if (!rating) return null;
+  
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  
+  return (
+    <Flex align="center">
+      {[...Array(fullStars)].map((_, i) => (
+        <Text key={i} fontSize="xl" lineHeight="1">⭐</Text>
+      ))}
+      {hasHalfStar && <Text fontSize="xl" lineHeight="1">★</Text>}
+    </Flex>
+  );
+};
+
 export default function AlbumDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -29,6 +47,7 @@ export default function AlbumDetail() {
   const [songs, setSongs] = useState([]);
   const [artist, setArtist] = useState(null);
   const [comments, setComments] = useState([]);
+  const [albumRating, setAlbumRating] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -42,6 +61,14 @@ export default function AlbumDetail() {
         // Fetch album details
         const albumData = await api.getAlbum(id);
         setAlbum(albumData);
+        
+        // Fetch album rating
+        try {
+          const ratingData = await api.getAlbumRating(id);
+          setAlbumRating(ratingData);
+        } catch (ratingErr) {
+          console.log('No rating available for this album');
+        }
         
         // Fetch artist details
         try {
@@ -137,9 +164,7 @@ export default function AlbumDetail() {
                 fallbackSrc="/album-placeholder.svg"
               />
               <Flex justify="center" mt={2}>
-                {Array.from({ length: album.star }).map((_, i) => (
-                  <Text key={i} fontSize="xl">⭐</Text>
-                ))}
+                {albumRating && <StarRating rating={albumRating.stars} size="lg" />}
               </Flex>
             </Box>
             
@@ -173,6 +198,13 @@ export default function AlbumDetail() {
                     <Text width="120px">Category:</Text>
                     <Text>{album.album_category}</Text>
                   </Flex>
+                  
+                  {albumRating && (
+                    <Flex>
+                      <Text width="120px">Rating:</Text>
+                      <Text>{albumRating.average_rating}</Text>
+                    </Flex>
+                  )}
                   
                   {album.record_label && album.record_label !== "''" && (
                     <Flex>
@@ -230,9 +262,7 @@ export default function AlbumDetail() {
                         </NextLink>
                       </Td>
                       <Td py={3}>
-                        {Array.from({ length: song.star }).map((_, i) => (
-                          <Text as="span" key={i} fontSize="xs">⭐</Text>
-                        ))}
+                        <StarRating rating={song.rating / 2} size="sm" />
                       </Td>
                       <Td py={3}>
                         {artist && (

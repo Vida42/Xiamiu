@@ -145,12 +145,12 @@ export const api = {
       throw error;
     }
   },
-  getArtistsByReign: async (reign) => {
+  getArtistsByRegion: async (region) => {
     try {
-      const response = await apiClient.get(`/artists/reign/${reign}`);
+      const response = await apiClient.get(`/artists/region/${region}`);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching artists by reign ${reign}:`, error);
+      console.error(`Error fetching artists by region ${region}:`, error);
       throw error;
     }
   },
@@ -246,6 +246,24 @@ export const api = {
       throw error;
     }
   },
+  getAlbumRating: async (id) => {
+    try {
+      const response = await apiClient.get(`/albums/${id}/rating`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching rating for album ${id}:`, error);
+      throw error;
+    }
+  },
+  getAlbumSongsRating: async (id) => {
+    try {
+      const response = await apiClient.get(`/albums/${id}/songs-rating`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching songs rating for album ${id}:`, error);
+      throw error;
+    }
+  },
 
   // Songs
   getSongs: async () => {
@@ -281,6 +299,15 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching comments for song ${id}:`, error);
+      throw error;
+    }
+  },
+  getSongRating: async (id) => {
+    try {
+      const response = await apiClient.get(`/songs/${id}/rating`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching rating for song ${id}:`, error);
       throw error;
     }
   },

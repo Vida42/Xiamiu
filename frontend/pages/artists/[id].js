@@ -294,7 +294,7 @@ export default function ArtistDetail() {
             <Box>
               <Heading size="md" mb={4}>{artist.name}</Heading>
               <Text fontSize="md" color="gray.600" mb={4}>
-                Reign: {artist.reign}
+                Region: {artist.region}
               </Text>
               
               {artistMeta && artistMeta.info && (

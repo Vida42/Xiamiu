@@ -52,15 +52,15 @@ export default function Artists() {
     let isMounted = true;
     setIsFilterLoading(true);
     
-    // Filter by reign (country/region)
+    // Filter by region (country/region)
     if (activeFilter !== 'popular') {
-      const fetchArtistsByReign = async () => {
+      const fetchArtistsByRegion = async () => {
         try {
-          const reignArtists = await api.getArtistsByReign(activeFilter);
+          const regionArtists = await api.getArtistsByRegion(activeFilter);
           
           if (!isMounted) return;
           
-          // If also filtering by genre, filter the reign results by genre
+          // If also filtering by genre, filter the region results by genre
           if (activeGenre) {
             const fetchArtistsByGenre = async () => {
               try {
@@ -68,15 +68,15 @@ export default function Artists() {
                 
                 if (!isMounted) return;
                 
-                // Intersection of reign artists and genre artists
+                // Intersection of region artists and genre artists
                 const artistIds = new Set(genreArtists.map(artist => artist.artist_id));
-                const filtered = reignArtists.filter(artist => artistIds.has(artist.artist_id));
+                const filtered = regionArtists.filter(artist => artistIds.has(artist.artist_id));
                 applySort(filtered);
                 setIsFilterLoading(false);
               } catch (err) {
                 console.error(`Error fetching artists for genre ${activeGenre}:`, err);
                 if (isMounted) {
-                  applySort(reignArtists);
+                  applySort(regionArtists);
                   setIsFilterLoading(false);
                 }
               }
@@ -84,11 +84,11 @@ export default function Artists() {
             
             fetchArtistsByGenre();
           } else {
-            applySort(reignArtists);
+            applySort(regionArtists);
             setIsFilterLoading(false);
           }
         } catch (err) {
-          console.error(`Error fetching artists for reign ${activeFilter}:`, err);
+          console.error(`Error fetching artists for region ${activeFilter}:`, err);
           if (isMounted) {
             applySort([]);
             setError(`Failed to load ${activeFilter} artists. Please try again later.`);
@@ -97,7 +97,7 @@ export default function Artists() {
         }
       };
       
-      fetchArtistsByReign();
+      fetchArtistsByRegion();
     } else {
       // For "popular" tab, show artists with highest popularity
       // For this demo, we'll just sort by name as a placeholder
@@ -145,8 +145,8 @@ export default function Artists() {
       case 'name':
         result.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'reign':
-        result.sort((a, b) => a.reign.localeCompare(b.reign));
+      case 'region':
+        result.sort((a, b) => a.region.localeCompare(b.region));
         break;
       default:
         break;
