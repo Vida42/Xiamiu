@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { Box, Heading, Text, Image, SimpleGrid, Flex, Badge, Link, Divider, useColorModeValue, Button } from '@chakra-ui/react';
+import { Box, Heading, Text, Image, SimpleGrid, Flex, Badge, Link, Divider, useColorModeValue, Button, VStack, useToast, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, useDisclosure, HStack, Avatar } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import { AlbumCard, CollectionCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { CommentForm, CommentItem, DeleteConfirmationDialog } from '../../components';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Reusable SectionHeader component similar to the one in index.js
-const SectionHeader = ({ title }) => {
+const SectionHeader = ({ title }) => {
   return (
     <Flex justify="space-between" align="center" mb={4}>
       <Flex align="center">
@@ -60,6 +62,13 @@ export default function ArtistDetail() {
     { value: 'EP', label: 'EP/单曲' }
   ];
 
+  const { isAuthenticated, user } = useAuth();
+  const [refreshComments, setRefreshComments] = useState(false);
+  const toast = useToast();
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
+
   useEffect(() => {
     const fetchArtistData = async () => {
       if (!id) return;
@@ -87,7 +96,27 @@ export default function ArtistDetail() {
         // Try to fetch artist comments
         try {
           const commentsData = await api.getArtistComments(id);
-          setComments(commentsData);
+          
+          // Enhance comments with user data if available
+          const enhancedComments = await Promise.all(
+            commentsData.map(async (comment) => {
+              try {
+                if (comment.user_id) {
+                  const userData = await api.getUser(comment.user_id);
+                  return {
+                    ...comment,
+                    user_name: userData.user_name
+                  };
+                }
+                return comment;
+              } catch (error) {
+                console.log(`Error fetching user info for comment ${comment.id}:`, error);
+                return comment;
+              }
+            })
+          );
+          
+          setComments(enhancedComments);
         } catch (commentsErr) {
           console.log('No comments available for this artist');
         }
@@ -130,7 +159,7 @@ export default function ArtistDetail() {
     };
 
     fetchArtistData();
-  }, [id]);
+  }, [id, refreshComments]);
 
   // Filter albums based on selected category
   useEffect(() => {
@@ -234,6 +263,110 @@ export default function ArtistDetail() {
           Next
         </Button>
       </Flex>
+    );
+  };
+
+  // Handler for submitting a new artist comment
+  const handleCommentSubmit = async (comment) => {
+    try {
+      await api.addArtistComment(id, comment);
+      setRefreshComments(prev => !prev); // Toggle to trigger a refresh
+      
+      // Show success toast
+      toast({
+        title: "Comment submitted",
+        description: "Your comment has been added successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      
+    } catch (error) {
+      console.error('Error submitting artist comment:', error);
+      
+      // Show error toast with the error message
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit your comment. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      throw error;
+    }
+  };
+
+  // Update the handleDeleteComment function
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
+    
+    try {
+      await api.deleteArtistComment(commentToDelete.id);
+      // Update the local state to remove the deleted comment
+      setComments(comments.filter(comment => comment.id !== commentToDelete.id));
+      toast({
+        title: "Comment deleted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete comment. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      onClose();
+      setCommentToDelete(null);
+    }
+  };
+
+  // Function to render comments section
+  const renderComments = () => {
+    return (
+      <Box my={8}>
+        <SectionHeader title="Comments" />
+        
+        {isAuthenticated && (
+          <Box mb={6} p={4} bg="gray.50" borderRadius="md">
+            <CommentForm
+              onSubmit={handleCommentSubmit}
+              showRating={false}
+              maxChars={200}
+              placeholder="Share your thoughts about this artist (200 characters max)"
+            />
+          </Box>
+        )}
+        
+        {comments.length === 0 ? (
+          <Text py={4}>No comments yet. Be the first to comment!</Text>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {comments.map((comment, index) => (
+              <CommentItem
+                key={index}
+                comment={comment}
+                currentUser={user}
+                onDeleteClick={(comment) => {
+                  setCommentToDelete(comment);
+                  onOpen();
+                }}
+                variant="artist"
+              />
+            ))}
+          </VStack>
+        )}
+        <DeleteConfirmationDialog 
+          isOpen={isOpen}
+          onClose={onClose}
+          onDelete={handleDeleteComment}
+        />
+      </Box>
     );
   };
 
@@ -388,35 +521,7 @@ export default function ArtistDetail() {
         )}
         
         {/* Comments section with SectionHeader */}
-        <Box mt={12} mb={8}>
-          <SectionHeader title="Comments" />
-          
-          {comments.length === 0 ? (
-            <Text py={4}>No comments available for this artist.</Text>
-          ) : (
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mt={4}>
-              {comments.map(comment => (
-                <Box 
-                  key={comment.id} 
-                  p={4} 
-                  borderWidth="1px" 
-                  borderRadius="md"
-                  borderColor="gray.200"
-                >
-                  <Text>{comment.comment}</Text>
-                  <Flex mt={2} justify="space-between" alignItems="center">
-                    <Text fontSize="sm" color="gray.500">
-                      Posted on {new Date(comment.review_date).toLocaleDateString()}
-                    </Text>
-                    <Badge colorScheme="orange">
-                      {comment.num_like} likes
-                    </Badge>
-                  </Flex>
-                </Box>
-              ))}
-            </SimpleGrid>
-          )}
-        </Box>
+        {renderComments()}
       </Box>
     );
   };

@@ -136,7 +136,7 @@ def get_songs(db: Session, skip: int = 0, limit: int = 100):
 
 
 def get_songs_by_album(db: Session, album_id: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Song).filter(models.Song.album_id == album_id).offset(skip).limit(limit).all()
+    return db.query(models.Song).filter(models.Song.album_id == album_id).order_by(models.Song.order).offset(skip).limit(limit).all()
 
 
 def create_song(db: Session, song: schemas.SongCreate):
@@ -321,25 +321,25 @@ def search_all(db: Session, query: str):
 
 
 # Rating operations
-def get_song_rating(db: Session, song_id: str):
-    """Calculate the average rating for a song."""
+def get_song_rating(db: Session, song_id: str) -> schemas.SongRating:
+    """Get the average rating and total number of ratings for a song."""
     result = db.query(
-        func.avg(models.SongComment.star).label("average"),
-        func.count(models.SongComment.id).label("count")
+        func.avg(models.SongComment.star).label('average'),
+        func.count(models.SongComment.star).label('count')
     ).filter(models.SongComment.song_id == song_id).first()
-    
-    average = 0
-    count = 0
-    
+
     if result and result.count > 0:
         average = round(result.average)  # Round to nearest integer
         count = result.count
-    
-    return {
-        "song_id": song_id,
-        "average_rating": average,
-        "total_ratings": count
-    }
+    else:
+        average = 0
+        count = 0
+
+    return schemas.SongRating(
+        song_id=song_id,
+        average_rating=average,
+        total_ratings=count
+    )
 
 
 def get_album_rating(db: Session, album_id: str):

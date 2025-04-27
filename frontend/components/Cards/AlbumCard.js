@@ -54,11 +54,15 @@ const AlbumCard = ({ album }) => {
             <Text color="gray.500" fontSize="xs">
               {formatDate(album.release_date)}
             </Text>
-            <Stack direction="row" spacing={0.5}>
-              {Array.from({ length: album.star }).map((_, i) => (
-                <Text key={i} fontSize="10px" lineHeight="1">⭐</Text>
-              ))}
-            </Stack>
+            {album.star && album.star > 0 ? (
+              <Stack direction="row" spacing={0.5}>
+                {Array.from({ length: album.star }).map((_, i) => (
+                  <Text key={i} fontSize="10px" lineHeight="1">⭐</Text>
+                ))}
+              </Stack>
+            ) : (
+              <Text color="gray.500" fontSize="xs">No rating</Text>
+            )}
           </Flex>
         </Box>
       </Box>

@@ -163,7 +163,7 @@ class ArtistComment(Base, BaseModel):
     comment: Mapped[str] = mapped_column(String(255))
     num_like: Mapped[int] = mapped_column(Integer, default=0)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
-    star: Mapped[int] = mapped_column(Integer)
+    star: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     
     # Relationships
     artist = relationship("Artist", back_populates="comments")

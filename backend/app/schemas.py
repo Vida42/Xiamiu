@@ -191,13 +191,17 @@ class SongComment(SongCommentBase):
 
 
 class ArtistCommentBase(CommentBase):
-    star: int = Field(..., ge=1, le=100, description="Rating from 1 to 100")
+    # Remove validation for artist comments (they don't have ratings)
+    star: Optional[int] = None
     
-    @validator('star')
-    def validate_star_range(cls, v):
-        if v < 1 or v > 100:
-            raise ValueError('Artist star rating must be between 1 and 100')
-        return v
+    # Commented out validation rules since we don't require star rating for artist comments
+    # star: int = Field(default=1, ge=1, le=100, description="Rating from 1 to 100")
+    # 
+    # @validator('star')
+    # def validate_star_range(cls, v):
+    #     if v < 1 or v > 100:
+    #         raise ValueError('Artist star rating must be between 1 and 100')
+    #     return v
 
 
 class ArtistCommentCreate(ArtistCommentBase):

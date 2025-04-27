@@ -368,5 +368,137 @@ export const api = {
       console.error(`Error fetching user ${id}:`, error);
       throw error;
     }
+  },
+  
+  // Comment and Rating functions
+  addArtistComment: async (artistId, comment) => {
+    try {
+      // First get the current user
+      const user = await api.getCurrentUser();
+      
+      // For artist comments, we don't include the star field
+      const commentData = {
+        comment: comment,
+        artist_id: artistId,
+        user_id: user.id
+      };
+      
+      const response = await apiClient.post(`/artists/${artistId}/comments`, commentData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding comment to artist ${artistId}:`, error);
+      // Extract error details from response if available
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                             (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                             'Failed to add comment';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
+  },
+  
+  addAlbumComment: async (albumId, comment, rating) => {
+    try {
+      // First get the current user
+      const user = await api.getCurrentUser();
+      
+      // Ensure rating is at least 1
+      const validRating = Math.max(1, rating || 1);
+      
+      const response = await apiClient.post(`/albums/${albumId}/comments`, { 
+        comment: comment,
+        star: validRating,
+        album_id: albumId,
+        user_id: user.id
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding comment to album ${albumId}:`, error);
+      // Extract error details from response if available
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                             (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                             'Failed to add comment and rating';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
+  },
+  
+  deleteAlbumComment: async (commentId) => {
+    try {
+      const response = await apiClient.delete(`/albums/comments/${commentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting album comment ${commentId}:`, error);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                           (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                           'Failed to delete comment';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
+  },
+  
+  deleteSongComment: async (commentId) => {
+    try {
+      const response = await apiClient.delete(`/songs/comments/${commentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting song comment ${commentId}:`, error);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                           (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                           'Failed to delete comment';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
+  },
+  
+  addSongComment: async (songId, comment, rating) => {
+    try {
+      // First get the current user
+      const user = await api.getCurrentUser();
+      
+      // Ensure rating is at least 1
+      const validRating = Math.max(1, rating || 1);
+      
+      const response = await apiClient.post(`/songs/${songId}/comments`, { 
+        comment: comment,
+        star: validRating,
+        song_id: songId,
+        user_id: user.id
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error adding comment to song ${songId}:`, error);
+      // Extract error details from response if available
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                             (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                             'Failed to add comment and rating';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
+  },
+
+  deleteArtistComment: async (commentId) => {
+    try {
+      const response = await apiClient.delete(`/artists/comments/${commentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting artist comment ${commentId}:`, error);
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.detail || 
+                           (Array.isArray(error.response.data) ? error.response.data[0] : error.response.data) || 
+                           'Failed to delete comment';
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      }
+      throw error;
+    }
   }
 };

@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from . import crud
 from . import schemas
+from . import models
 from .database import get_db
 from .utils import convert_datetime_to_iso8601, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from jose import JWTError, jwt
@@ -398,6 +399,18 @@ def read_comments_for_artist(artist_id: str, skip: int = 0, limit: int = 100, db
     return comments
 
 
+@app.delete("/artists/comments/{comment_id}")
+def delete_artist_comment(comment_id: int, db: Session = Depends(get_db)):
+    db_comment = db.query(models.ArtistComment).filter(models.ArtistComment.id == comment_id).first()
+    if db_comment is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    # Delete the comment
+    db.delete(db_comment)
+    db.commit()
+    return {"message": "Comment deleted successfully"}
+
+
 @app.post("/albums/{album_id}/comments", response_model=schemas.AlbumComment)
 def create_comment_for_album(album_id: str, comment: schemas.AlbumCommentCreate, db: Session = Depends(get_db)):
     db_album = crud.get_album(db, album_id=album_id)
@@ -457,6 +470,30 @@ def get_album_songs_rating(album_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Album not found")
     
     return crud.get_album_songs_avg_rating(db, album_id=album_id)
+
+
+@app.delete("/songs/comments/{comment_id}")
+def delete_song_comment(comment_id: int, db: Session = Depends(get_db)):
+    db_comment = db.query(models.SongComment).filter(models.SongComment.id == comment_id).first()
+    if db_comment is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    # Delete the comment
+    db.delete(db_comment)
+    db.commit()
+    return {"message": "Comment deleted successfully"}
+
+
+@app.delete("/albums/comments/{comment_id}")
+def delete_album_comment(comment_id: int, db: Session = Depends(get_db)):
+    db_comment = db.query(models.AlbumComment).filter(models.AlbumComment.id == comment_id).first()
+    if db_comment is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    # Delete the comment
+    db.delete(db_comment)
+    db.commit()
+    return {"message": "Comment deleted successfully"}
 
 
 # Add this at the end of the file for running the app directly
