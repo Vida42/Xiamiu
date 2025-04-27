@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { Box, Heading, Text, Image, Flex, Badge, Link, Divider, Table, Thead, Tbody, Tr, Td, Th, VStack } from '@chakra-ui/react';
+import { Box, Heading, Text, Image, Flex, Badge, Link, Divider, Table, Thead, Tbody, Tr, Td, Th, VStack, useDisclosure, useToast, Button } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
-import { StarRating } from '../../components';
+import { StarRating, CommentForm, SongRatingDialog, InteractiveStarRating, CommentItem, DeleteConfirmationDialog } from '../../components';
+import { useAuth } from '../../contexts/AuthContext';
 
 // SectionHeader component for consistent styling
 const SectionHeader = ({ title }) => {
@@ -45,11 +46,41 @@ export default function AlbumDetail() {
   const [album, setAlbum] = useState(null);
   const [albumMeta, setAlbumMeta] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [originalSongs, setOriginalSongs] = useState([]);
   const [artist, setArtist] = useState(null);
   const [comments, setComments] = useState([]);
   const [albumRating, setAlbumRating] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated, user } = useAuth();
+  const [refreshData, setRefreshData] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  
+  // For the song rating dialog
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+
+  // Add state for comment deletion
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
+
+  // Custom close handler for the rating dialog
+  const handleCloseRatingDialog = () => {
+    // If rating wasn't submitted, revert back to original songs state
+    if (!ratingSubmitted) {
+      // Find the original song state
+      const originalSong = originalSongs.find(s => s.song_id === selectedSong.song_id);
+      // Update the songs array with original rating
+      setSongs(prevSongs => prevSongs.map(song => 
+        song.song_id === selectedSong.song_id 
+          ? { ...song, star: originalSong.star || 0 }
+          : song
+      ));
+    }
+    setRatingSubmitted(false); // Reset for next time
+    onClose(); // Close the dialog
+  };
 
   useEffect(() => {
     const fetchAlbumData = async () => {
@@ -78,9 +109,37 @@ export default function AlbumDetail() {
           console.log('Failed to load artist details');
         }
         
-        // Fetch album's songs
-        const songsData = await api.getAlbumSongs(id);
-        setSongs(songsData);
+        // Fetch album's songs with ratings
+        try {
+          // First get basic song data
+          const songsData = await api.getAlbumSongs(id);
+          
+          // Then fetch individual song ratings and enhance the song objects
+          const songsWithRatings = await Promise.all(
+            songsData.map(async (song) => {
+              try {
+                const ratingData = await api.getSongRating(song.song_id);
+                // Add the star rating (0-5 scale) to the song object
+                return { 
+                  ...song, 
+                  star: ratingData.average_rating // This should be 0-5 scale already
+                };
+              } catch (error) {
+                console.log(`No rating available for song ${song.song_id}`);
+                return { ...song, star: 0 };
+              }
+            })
+          );
+          
+          setSongs(songsWithRatings);
+          setOriginalSongs([...songsWithRatings]);
+        } catch (err) {
+          console.error('Error fetching songs with ratings:', err);
+          // Fallback to just songs without ratings
+          const songsData = await api.getAlbumSongs(id);
+          setSongs(songsData);
+          setOriginalSongs([...songsData]);
+        }
         
         // Try to fetch album metadata
         try {
@@ -93,7 +152,27 @@ export default function AlbumDetail() {
         // Try to fetch album comments
         try {
           const commentsData = await api.getAlbumComments(id);
-          setComments(commentsData);
+          
+          // Enhance comments with user data if available
+          const enhancedComments = await Promise.all(
+            commentsData.map(async (comment) => {
+              try {
+                if (comment.user_id) {
+                  const userData = await api.getUser(comment.user_id);
+                  return {
+                    ...comment,
+                    user_name: userData.user_name
+                  };
+                }
+                return comment;
+              } catch (error) {
+                console.log(`Error fetching user info for comment ${comment.id}:`, error);
+                return comment;
+              }
+            })
+          );
+          
+          setComments(enhancedComments);
         } catch (commentsErr) {
           console.log('No comments available for this album');
         }
@@ -107,7 +186,154 @@ export default function AlbumDetail() {
     };
 
     fetchAlbumData();
-  }, [id]);
+  }, [id, refreshData]);
+
+  // Handler for submitting a new album comment with rating
+  const handleAlbumCommentSubmit = async (comment, rating) => {
+    try {
+      await api.addAlbumComment(id, comment, rating);
+      setRefreshData(prev => !prev); // Toggle to trigger a refresh
+      toast({
+        title: "Review submitted",
+        description: "Your album review has been submitted successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error submitting album comment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your review. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      throw error;
+    }
+  };
+
+  // Handler for submitting a song rating
+  const handleSongRating = async (rating, comment) => {
+    if (!selectedSong) return;
+    
+    try {
+      // The API expects a rating between 0-5, so don't convert it
+      await api.addSongComment(selectedSong.song_id, comment, rating);
+      
+      // Refresh the page to get new average ratings
+      setRefreshData(prev => !prev);
+      
+      setRatingSubmitted(true);
+      toast({
+        title: "Rating submitted",
+        description: `Your rating for "${selectedSong.name}" has been submitted.`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      
+      onClose();
+      
+    } catch (error) {
+      console.error('Error submitting song rating:', error);
+      throw new Error(error.message || "Failed to submit your rating. Please try again.");
+    }
+  };
+
+  // Handler for opening the song rating dialog
+  const handleOpenSongRating = (song) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login required",
+        description: "You need to log in to rate songs.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    
+    setSelectedSong({ ...song, star: Math.round(song.star) || 0 });
+    setRatingSubmitted(false); // Reset submission status
+    onOpen();
+  };
+
+  // Update the delete comment handler to work with the new dialog
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
+    
+    try {
+      await api.deleteAlbumComment(commentToDelete.id);
+      // Remove the comment from the local state
+      setComments(comments.filter(c => c.id !== commentToDelete.id));
+      toast({
+        title: "Comment deleted",
+        description: "Your comment has been deleted successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the comment. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      closeDeleteDialog();
+      setCommentToDelete(null);
+    }
+  };
+
+  // Updated renderComments function to use the DeleteConfirmationDialog
+  const renderComments = () => {
+    return (
+      <Box my={8}>
+        <Heading size="md" mb={4}>Comments</Heading>
+        
+        {isAuthenticated && (
+          <Box mb={6} p={4} bg="gray.50" borderRadius="md">
+            <CommentForm
+              onSubmit={handleAlbumCommentSubmit}
+              showRating={true}
+              maxChars={200}
+              placeholder="Share your thoughts about this album (200 characters max)"
+            />
+          </Box>
+        )}
+        
+        {comments.length === 0 ? (
+          <Text py={4}>No comments yet. Be the first to comment!</Text>
+        ) : (
+          <VStack spacing={4} align="stretch">
+            {comments.map((comment, index) => (
+              <CommentItem
+                key={index}
+                comment={comment}
+                currentUser={user}
+                onDeleteClick={(comment) => {
+                  setCommentToDelete(comment);
+                  openDeleteDialog();
+                }}
+                formatDate={formatDate}
+                variant="album"
+              />
+            ))}
+          </VStack>
+        )}
+        
+        <DeleteConfirmationDialog
+          isOpen={isDeleteDialogOpen}
+          onClose={closeDeleteDialog}
+          onDelete={handleDeleteComment}
+        />
+      </Box>
+    );
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -164,7 +390,13 @@ export default function AlbumDetail() {
                 fallbackSrc="/album-placeholder.svg"
               />
               <Flex justify="center" mt={2}>
-                {albumRating && <StarRating rating={albumRating.stars} size="lg" />}
+                {albumRating && albumRating.average_rating > 0 ? 
+                  <Flex align="center" gap={2}>
+                    <StarRating rating={albumRating.stars} size="lg" />
+                  </Flex>
+                  : 
+                  <StarRating rating={0} size="lg" />
+                }
               </Flex>
             </Box>
             
@@ -199,12 +431,10 @@ export default function AlbumDetail() {
                     <Text>{album.album_category}</Text>
                   </Flex>
                   
-                  {albumRating && (
-                    <Flex>
-                      <Text width="120px">Rating:</Text>
-                      <Text>{albumRating.average_rating}</Text>
-                    </Flex>
-                  )}
+                  <Flex>
+                    <Text width="120px">Rating:</Text>
+                    <Text>{albumRating && albumRating.average_rating > 0 ? albumRating.average_rating : "No rating now"}</Text>
+                  </Flex>
                   
                   {album.record_label && album.record_label !== "''" && (
                     <Flex>
@@ -247,35 +477,39 @@ export default function AlbumDetail() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {songs.map((song, index) => (
-                    <Tr key={song.song_id} borderBottom="1px solid" borderColor="gray.100">
-                      <Td textAlign="center" color="gray.500" fontSize="sm" py={3}>{index + 1}</Td>
-                      <Td py={3}>
+                  {songs.map((song) => (
+                    <Tr key={song.song_id}>
+                      <Td textAlign="center">{song.order}</Td>
+                      <Td>
                         <NextLink href={`/songs/${song.song_id}`} passHref legacyBehavior>
-                          <Link 
-                            color="black" 
-                            _hover={{ textDecoration: 'underline' }}
-                            fontSize="sm"
-                          >
+                          <Link fontWeight="medium" color="blue.600" _hover={{ textDecoration: 'underline' }}>
                             {song.name}
                           </Link>
                         </NextLink>
                       </Td>
-                      <Td py={3}>
-                        <StarRating rating={song.rating / 2} size="sm" />
-                      </Td>
-                      <Td py={3}>
-                        {artist && (
-                          <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
-                            <Link 
-                              color="gray.600" 
-                              fontSize="sm"
-                              _hover={{ textDecoration: 'underline' }}
-                            >
-                              {artist.name}
-                            </Link>
-                          </NextLink>
+                      <Td>
+                        {isAuthenticated ? (
+                          <Box cursor="pointer">
+                            <InteractiveStarRating
+                              initialRating={Math.round(song.star) || 0}
+                              size="sm"
+                              onRatingSelect={(newRating) => {
+                                setSelectedSong({ ...song, star: newRating });
+                                onOpen();
+                              }}
+                              resetOnClick={true}
+                            />
+                          </Box>
+                        ) : (
+                          <StarRating rating={Math.round(song.star) || 0} size="sm" />
                         )}
+                      </Td>
+                      <Td>
+                        <NextLink href={`/artists/${song.artist_id}`} passHref legacyBehavior>
+                          <Link color="gray.600">
+                            {song.artist_name}
+                          </Link>
+                        </NextLink>
                       </Td>
                     </Tr>
                   ))}
@@ -285,43 +519,28 @@ export default function AlbumDetail() {
           )}
         </Box>
         
-        {/* Comments Section */}
-        <Box mt={8} mb={8}>
-          <SectionHeader title={`Comments (${comments.length})`} />
-          
-          {comments.length === 0 ? (
-            <Text py={4}>No comments available for this album.</Text>
-          ) : (
-            <Box mt={4}>
-              {comments.map(comment => (
-                <Box 
-                  key={comment.id} 
-                  p={4} 
-                  borderWidth="1px" 
-                  borderRadius="md"
-                  mb={4}
-                >
-                  <Text>{comment.comment}</Text>
-                  <Flex mt={2} justify="space-between" alignItems="center">
-                    <Text fontSize="sm" color="gray.500">
-                      Posted on {new Date(comment.review_date).toLocaleDateString()}
-                    </Text>
-                    <Badge colorScheme="green">
-                      {comment.num_like} likes
-                    </Badge>
-                  </Flex>
-                </Box>
-              ))}
-            </Box>
-          )}
-        </Box>
+        {/* Render Comments Section */}
+        {renderComments()}
       </Box>
     );
   };
 
   return (
     <XiamiuLayout>
-      {renderContent()}
+      <Box maxW="1200px" mx="auto" px={4} py={8}>
+        {renderContent()}
+      </Box>
+      
+      {/* Song Rating Dialog */}
+      {selectedSong && (
+        <SongRatingDialog
+          isOpen={isOpen}
+          onClose={handleCloseRatingDialog}
+          songName={selectedSong.name}
+          initialRating={selectedSong.star}
+          onSubmit={handleSongRating}
+        />
+      )}
     </XiamiuLayout>
   );
-} 
+}
