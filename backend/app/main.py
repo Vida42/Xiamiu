@@ -489,11 +489,89 @@ def delete_album_comment(comment_id: int, db: Session = Depends(get_db)):
     db_comment = db.query(models.AlbumComment).filter(models.AlbumComment.id == comment_id).first()
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
-    
+
     # Delete the comment
     db.delete(db_comment)
     db.commit()
     return {"message": "Comment deleted successfully"}
+
+
+# ===== Recommendation endpoints =====
+
+DEMO_USER_ID = 1  # v1: no auth, hardcoded demo user
+
+ALLOWED_QUICK_REACTIONS = {"interested", "skip", "save"}
+
+
+@app.get("/recommendations/daily", response_model=schemas.RecommendationDailyOut)
+def get_recommendations_daily(db: Session = Depends(get_db)):
+    """Latest recommendation set for the demo user, top 20 items by LLM fit rank."""
+    payload = crud.get_daily_recommendation(db, user_id=DEMO_USER_ID, top_n=20)
+    if payload is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No recommendations generated yet for this user.",
+        )
+    return payload
+
+
+@app.get("/recommendations", response_model=schemas.RecommendationList)
+def list_recommendation_sets(db: Session = Depends(get_db)):
+    """All recommendation sets for the demo user, newest first, metadata only."""
+    return crud.list_recommendations(db, user_id=DEMO_USER_ID)
+
+
+@app.get("/recommendations/{rec_id}", response_model=schemas.RecommendationDailyOut)
+def get_recommendation_set(rec_id: int, db: Session = Depends(get_db)):
+    """A specific recommendation set by id, top 20 items by LLM fit rank."""
+    payload = crud.get_recommendation_by_id(db, user_id=DEMO_USER_ID, rec_id=rec_id, top_n=20)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Recommendation set not found.")
+    return payload
+
+
+@app.post(
+    "/recommendations/items/{item_id}/quick-reaction",
+    response_model=schemas.QuickReactionOut,
+)
+def post_quick_reaction(
+    item_id: int,
+    payload: schemas.QuickReactionIn,
+    db: Session = Depends(get_db),
+):
+    """Persist a low-friction reaction (interested/skip/save) for a recommendation item."""
+    if payload.reaction not in ALLOWED_QUICK_REACTIONS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"reaction must be one of {sorted(ALLOWED_QUICK_REACTIONS)}",
+        )
+    if crud.get_recommendation_item(db, item_id) is None:
+        raise HTTPException(status_code=404, detail="Recommendation item not found.")
+    return crud.upsert_quick_reaction(
+        db, user_id=DEMO_USER_ID, item_id=item_id, reaction=payload.reaction
+    )
+
+
+@app.post(
+    "/recommendations/items/{item_id}/feedback",
+    response_model=schemas.FeedbackOut,
+)
+def post_feedback(
+    item_id: int,
+    payload: schemas.FeedbackIn,
+    db: Session = Depends(get_db),
+):
+    """Persist deep feedback (1-5 stars + impressions + advice) for a recommendation item."""
+    if crud.get_recommendation_item(db, item_id) is None:
+        raise HTTPException(status_code=404, detail="Recommendation item not found.")
+    return crud.upsert_feedback(
+        db,
+        user_id=DEMO_USER_ID,
+        item_id=item_id,
+        star=payload.star,
+        song_impression=payload.song_impression,
+        recommendation_advice=payload.recommendation_advice,
+    )
 
 
 # Add this at the end of the file for running the app directly

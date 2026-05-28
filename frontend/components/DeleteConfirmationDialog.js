@@ -8,15 +8,17 @@ import {
   Button
 } from '@chakra-ui/react';
 import { useRef } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DeleteConfirmationDialog = ({ 
   isOpen, 
   onClose, 
   onDelete, 
-  title = "Delete Comment",
-  description = "Are you sure you want to delete this comment? This action cannot be undone."
+  title,
+  description
 }) => {
   const cancelRef = useRef();
+  const { t } = useLanguage();
 
   return (
     <AlertDialog
@@ -27,19 +29,19 @@ const DeleteConfirmationDialog = ({
       <AlertDialogOverlay>
         <AlertDialogContent>
           <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            {title}
+            {title || t('deleteComment')}
           </AlertDialogHeader>
 
           <AlertDialogBody>
-            {description}
+            {description || t('deleteCommentConfirm')}
           </AlertDialogBody>
 
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={onClose}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button colorScheme="red" onClick={onDelete} ml={3}>
-              Delete
+              {t('delete')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

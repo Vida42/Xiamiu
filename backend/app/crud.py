@@ -20,7 +20,14 @@ def get_genres(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_genre(db: Session, genre: schemas.GenreCreate):
-    db_genre = models.Genre(name=genre.name, info=genre.info)
+    db_genre = models.Genre(
+        id=genre.id,
+        name=genre.name,
+        info=genre.info,
+        info_zh=genre.info_zh,
+        info_en=genre.info_en,
+        category_id=genre.category_id,
+    )
     db.add(db_genre)
     db.commit()
     db.refresh(db_genre)
@@ -418,3 +425,216 @@ def get_album_songs_avg_rating(db: Session, album_id: str):
         "total_ratings": total_count,
         "stars": stars
     }
+
+
+# ===== Recommendation operations =====
+
+from typing import Optional as _Optional
+
+
+def _build_recommendation_payload(db: Session, rec: "models.Recommendation", user_id: int, top_n: int = 20):
+    """Build the enriched response payload for a single recommendation set.
+
+    Engagement counts (play_count/collects/recommends) live denormalized on
+    recommendation_items (migration 007). The serving path no longer reads
+    private_data/.
+    """
+    items = (
+        db.query(models.RecommendationItem)
+        .filter(models.RecommendationItem.recommendation_id == rec.id)
+        .order_by(models.RecommendationItem.rank)
+        .limit(top_n)
+        .all()
+    )
+
+    taste = (
+        db.query(models.TasteProfile)
+        .filter(models.TasteProfile.id == rec.taste_profile_id)
+        .first()
+    )
+
+    item_ids = [it.id for it in items]
+    quick_by_item = {}
+    feedback_by_item = {}
+    if item_ids:
+        quick_rows = (
+            db.query(models.RecommendationQuickReaction)
+            .filter(
+                models.RecommendationQuickReaction.user_id == user_id,
+                models.RecommendationQuickReaction.recommendation_item_id.in_(item_ids),
+            )
+            .all()
+        )
+        for q in quick_rows:
+            quick_by_item[q.recommendation_item_id] = q
+
+        feedback_rows = (
+            db.query(models.RecommendationFeedback)
+            .filter(
+                models.RecommendationFeedback.user_id == user_id,
+                models.RecommendationFeedback.recommendation_item_id.in_(item_ids),
+            )
+            .all()
+        )
+        for f in feedback_rows:
+            feedback_by_item[f.recommendation_item_id] = f
+
+    enriched_items = []
+    for it in items:
+        enriched_items.append({
+            "id": it.id,
+            "rank": it.rank,
+            "album_id": it.album_id,
+            "artist_name": it.artist_name,
+            "album_name": it.album_name,
+            "styles": it.styles_json,
+            "similarity_score": it.similarity_score,
+            "fit_score": it.fit_score,
+            "reason": it.reason,
+            "risk": it.risk,
+            "nearest_neighbors": it.nearest_neighbors_json,
+            "play_count": it.play_count,
+            "collects": it.collects,
+            "recommends": it.recommends,
+            "quick_reaction": quick_by_item.get(it.id),
+            "feedback": feedback_by_item.get(it.id),
+        })
+
+    return {
+        "id": rec.id,
+        "user_id": rec.user_id,
+        "generated_at": rec.created,
+        "generation_method": rec.generation_method,
+        "embedding_model": rec.embedding_model,
+        "judge_model": rec.judge_model,
+        "top_n": rec.top_n,
+        "taste_profile_id": rec.taste_profile_id,
+        "taste_profile_text": taste.profile_text if taste else "",
+        "items": enriched_items,
+    }
+
+
+def get_daily_recommendation(db: Session, user_id: int, top_n: int = 20):
+    """Latest recommendation set for user_id, with top_n items by rank ASC."""
+    rec = (
+        db.query(models.Recommendation)
+        .filter(models.Recommendation.user_id == user_id)
+        .order_by(models.Recommendation.created.desc())
+        .first()
+    )
+    if rec is None:
+        return None
+    return _build_recommendation_payload(db, rec, user_id=user_id, top_n=top_n)
+
+
+def get_recommendation_by_id(db: Session, user_id: int, rec_id: int, top_n: int = 20):
+    """A specific recommendation set by id, scoped to user_id."""
+    rec = (
+        db.query(models.Recommendation)
+        .filter(
+            models.Recommendation.id == rec_id,
+            models.Recommendation.user_id == user_id,
+        )
+        .first()
+    )
+    if rec is None:
+        return None
+    return _build_recommendation_payload(db, rec, user_id=user_id, top_n=top_n)
+
+
+def list_recommendations(db: Session, user_id: int):
+    """All recommendation sets for user_id, newest first, metadata only."""
+    rows = (
+        db.query(models.Recommendation)
+        .filter(models.Recommendation.user_id == user_id)
+        .order_by(models.Recommendation.created.desc())
+        .all()
+    )
+    return {
+        "count": len(rows),
+        "items": [
+            {
+                "id": r.id,
+                "generated_at": r.created,
+                "top_n": r.top_n,
+                "generation_method": r.generation_method,
+                "embedding_model": r.embedding_model,
+                "judge_model": r.judge_model,
+                "notes": r.notes,
+            }
+            for r in rows
+        ],
+    }
+
+
+def upsert_quick_reaction(db: Session, user_id: int, item_id: int, reaction: str):
+    """Upsert this user's quick reaction (interested/skip/save) on a recommendation item."""
+    existing = (
+        db.query(models.RecommendationQuickReaction)
+        .filter(
+            models.RecommendationQuickReaction.user_id == user_id,
+            models.RecommendationQuickReaction.recommendation_item_id == item_id,
+        )
+        .first()
+    )
+    if existing:
+        existing.reaction = reaction
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    row = models.RecommendationQuickReaction(
+        user_id=user_id,
+        recommendation_item_id=item_id,
+        reaction=reaction,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def upsert_feedback(
+    db: Session,
+    user_id: int,
+    item_id: int,
+    star: int,
+    song_impression: _Optional[str],
+    recommendation_advice: _Optional[str],
+):
+    """Upsert this user's deep feedback (star + impressions + advice) on a recommendation item."""
+    existing = (
+        db.query(models.RecommendationFeedback)
+        .filter(
+            models.RecommendationFeedback.user_id == user_id,
+            models.RecommendationFeedback.recommendation_item_id == item_id,
+        )
+        .first()
+    )
+    if existing:
+        existing.star = star
+        existing.song_impression = song_impression
+        existing.recommendation_advice = recommendation_advice
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    row = models.RecommendationFeedback(
+        user_id=user_id,
+        recommendation_item_id=item_id,
+        star=star,
+        song_impression=song_impression,
+        recommendation_advice=recommendation_advice,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def get_recommendation_item(db: Session, item_id: int):
+    return (
+        db.query(models.RecommendationItem)
+        .filter(models.RecommendationItem.id == item_id)
+        .first()
+    )

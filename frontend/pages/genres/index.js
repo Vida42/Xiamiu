@@ -3,8 +3,10 @@ import { Heading, Text, SimpleGrid, Box, Flex, Link } from '@chakra-ui/react';
 import { api } from '../../utils/api';
 import { GenreCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function Genres() {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [genres, setGenres] = useState([]);
@@ -18,7 +20,7 @@ export default function Genres() {
         setGenres(data);
       } catch (err) {
         console.error('Error fetching genres:', err);
-        setError('Failed to load genres. Please try again later.');
+        setError(t('failedLoadGenres'));
       } finally {
         setIsLoading(false);
       }
@@ -31,7 +33,7 @@ export default function Genres() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -39,10 +41,10 @@ export default function Genres() {
 
     return (
       <Box>
-        <Heading size="md" mb={6}>Genres</Heading>
+        <Heading size="md" mb={6}>{t('genres')}</Heading>
         {isLoading ? (
           <Flex justify="center" py={10}>
-            <Text>Loading genres...</Text>
+            <Text>{t('loadingGenres')}</Text>
           </Flex>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>

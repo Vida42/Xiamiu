@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import { Box, Heading, Text, Image, SimpleGrid, Flex, Link, Table, Thead, Tbody, Tr, Th, Td, Badge } from '@chakra-ui/react';
 import { api } from '../../../../utils/api';
 import XiamiuLayout from '../../../../components/Layout/XiamiuLayout';
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 const SectionHeader = ({ title, showMore = false }) => {
   return (
@@ -48,6 +49,7 @@ export default function ArtistCollection() {
   const [songs, setSongs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchCollectionData = async () => {
@@ -83,7 +85,7 @@ export default function ArtistCollection() {
         
       } catch (err) {
         console.error('Error fetching collection data:', err);
-        setError('Failed to load collection. Please try again later.');
+        setError(t('failedLoadCollection'));
       } finally {
         setIsLoading(false);
       }
@@ -98,7 +100,7 @@ export default function ArtistCollection() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -107,14 +109,15 @@ export default function ArtistCollection() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Text>Loading collection...</Text>
+          <Text>{t('loading')}</Text>
         </Box>
       );
     }
 
     const stars = parseInt(rating);
     const starDisplay = Array.from({ length: stars }).map((_, i) => '⭐').join('');
-    const collectionTitle = `${artist?.name || 'Artist'} - ${stars} Star Collection`;
+    const artistName = artist?.name || t('unknownArtist');
+    const collectionTitle = `${artistName} - ${t('starCollection', { stars })}`;
 
     return (
       <Box>
@@ -147,34 +150,34 @@ export default function ArtistCollection() {
           
           <Box>
             <Heading size="lg" mb={3} fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
-              {stars} Star Collection
+              {t('starCollection', { stars })}
             </Heading>
             <Text fontSize="md" mb={2} fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
-              Artist: {artist?.name || 'Unknown Artist'}
+              {t('artist')}: {artistName}
             </Text>
             <Text fontSize="md" mb={4} color="gray.600" fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
-              {songs.length} songs
+              {t('songCount', { count: songs.length })}
             </Text>
             <Text fontSize="md" fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
-              This collection contains all {stars}-star rated songs by {artist?.name || 'Artist'}.
+              {t('collectionDescription', { stars, artist: artistName })}
             </Text>
           </Box>
         </Flex>
         
         <Box mt={8}>
-          <SectionHeader title="Song List" />
+          <SectionHeader title={t('songList')} />
           
           {songs.length === 0 ? (
-            <Text py={4}>No songs found in this collection.</Text>
+            <Text py={4}>{t('noSongsInCollection')}</Text>
           ) : (
             <Box mt={4}>
               <Table variant="simple" size="md">
                 <Thead>
                   <Tr borderBottom="1px solid" borderColor="gray.200">
                     <Th width="60px" textAlign="center" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>#</Th>
-                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Song</Th>
-                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Album</Th>
-                    <Th width="120px" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Rating</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('song')}</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('album')}</Th>
+                    <Th width="120px" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('rating')}</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -219,7 +222,7 @@ export default function ArtistCollection() {
         <Box mt={8} mb={4}>
           <NextLink href={`/artists/${id}`} passHref>
             <Link color="#f60" fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif">
-              &larr; Back to Artist Page
+              &larr; {t('backToArtistPage')}
             </Link>
           </NextLink>
         </Box>

@@ -2,9 +2,11 @@ import { Box, Image, Text, LinkBox, LinkOverlay, Heading, Flex, Stack } from '@c
 import NextLink from 'next/link';
 import { useState, useEffect } from 'react';
 import { api } from '../../utils/api';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const AlbumCard = ({ album }) => {
   const [albumMeta, setAlbumMeta] = useState(null);
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     const fetchAlbumMeta = async () => {
@@ -21,7 +23,7 @@ const AlbumCard = ({ album }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US');
   };
 
   return (
@@ -61,7 +63,7 @@ const AlbumCard = ({ album }) => {
                 ))}
               </Stack>
             ) : (
-              <Text color="gray.500" fontSize="xs">No rating</Text>
+              <Text color="gray.500" fontSize="xs">{t('noRating')}</Text>
             )}
           </Flex>
         </Box>

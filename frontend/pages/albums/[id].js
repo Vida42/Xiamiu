@@ -6,6 +6,7 @@ import { api } from '../../utils/api';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 import { StarRating, CommentForm, SongRatingDialog, InteractiveStarRating, CommentItem, DeleteConfirmationDialog } from '../../components';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // SectionHeader component for consistent styling
 const SectionHeader = ({ title }) => {
@@ -53,6 +54,7 @@ export default function AlbumDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { isAuthenticated, user } = useAuth();
+  const { t, language } = useLanguage();
   const [refreshData, setRefreshData] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
@@ -179,7 +181,7 @@ export default function AlbumDetail() {
         
       } catch (err) {
         console.error('Error fetching album data:', err);
-        setError('Failed to load album details. Please try again later.');
+        setError(t('failedLoadAlbumDetails'));
       } finally {
         setIsLoading(false);
       }
@@ -194,8 +196,8 @@ export default function AlbumDetail() {
       await api.addAlbumComment(id, comment, rating);
       setRefreshData(prev => !prev); // Toggle to trigger a refresh
       toast({
-        title: "Review submitted",
-        description: "Your album review has been submitted successfully.",
+        title: t('reviewSubmitted'),
+        description: t('reviewSubmittedDescription'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -203,8 +205,8 @@ export default function AlbumDetail() {
     } catch (error) {
       console.error('Error submitting album comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to submit your review. Please try again.",
+        title: t('error'),
+        description: t('submitFailed'),
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -226,8 +228,8 @@ export default function AlbumDetail() {
       
       setRatingSubmitted(true);
       toast({
-        title: "Rating submitted",
-        description: `Your rating for "${selectedSong.name}" has been submitted.`,
+        title: t('ratingSubmitted'),
+        description: t('ratingSubmittedFor', { song: selectedSong.name }),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -237,7 +239,7 @@ export default function AlbumDetail() {
       
     } catch (error) {
       console.error('Error submitting song rating:', error);
-      throw new Error(error.message || "Failed to submit your rating. Please try again.");
+      throw new Error(error.message || t('submitFailed'));
     }
   };
 
@@ -245,8 +247,8 @@ export default function AlbumDetail() {
   const handleOpenSongRating = (song) => {
     if (!isAuthenticated) {
       toast({
-        title: "Login required",
-        description: "You need to log in to rate songs.",
+        title: t('loginRequired'),
+        description: t('loginRequiredRateSongs'),
         status: "warning",
         duration: 3000,
         isClosable: true,
@@ -268,8 +270,8 @@ export default function AlbumDetail() {
       // Remove the comment from the local state
       setComments(comments.filter(c => c.id !== commentToDelete.id));
       toast({
-        title: "Comment deleted",
-        description: "Your comment has been deleted successfully.",
+        title: t('commentDeleted'),
+        description: t('commentDeletedDescription'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -277,8 +279,8 @@ export default function AlbumDetail() {
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete the comment. Please try again.",
+        title: t('error'),
+        description: t('failedDeleteComment'),
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -293,7 +295,7 @@ export default function AlbumDetail() {
   const renderComments = () => {
     return (
       <Box my={8}>
-        <Heading size="md" mb={4}>Comments</Heading>
+        <Heading size="md" mb={4}>{t('comments')}</Heading>
         
         {isAuthenticated && (
           <Box mb={6} p={4} bg="gray.50" borderRadius="md">
@@ -301,13 +303,13 @@ export default function AlbumDetail() {
               onSubmit={handleAlbumCommentSubmit}
               showRating={true}
               maxChars={200}
-              placeholder="Share your thoughts about this album (200 characters max)"
+              placeholder={t('shareAlbumThoughts')}
             />
           </Box>
         )}
         
         {comments.length === 0 ? (
-          <Text py={4}>No comments yet. Be the first to comment!</Text>
+          <Text py={4}>{t('noCommentsYet')}</Text>
         ) : (
           <VStack spacing={4} align="stretch">
             {comments.map((comment, index) => (
@@ -337,7 +339,7 @@ export default function AlbumDetail() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US');
   };
 
   const renderContent = () => {
@@ -346,7 +348,7 @@ export default function AlbumDetail() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -355,7 +357,7 @@ export default function AlbumDetail() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Text>Loading album details...</Text>
+          <Text>{t('loadingAlbumDetails')}</Text>
         </Box>
       );
     }
@@ -363,11 +365,11 @@ export default function AlbumDetail() {
     if (!album) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Album Not Found</Heading>
-          <Text>The album you're looking for doesn't exist.</Text>
+          <Heading mb={4}>{t('albumNotFound')}</Heading>
+          <Text>{t('albumNotFoundHelp')}</Text>
           <NextLink href="/albums" passHref legacyBehavior>
             <Link color="blue.500" mt={4} display="inline-block">
-              Back to Albums
+              {t('backToAlbums')}
             </Link>
           </NextLink>
         </Box>
@@ -405,7 +407,7 @@ export default function AlbumDetail() {
               
               {artist && (
                 <Flex gap={2} mb={4}>
-                  <Text width="120px">Artist:</Text>
+                  <Text width="120px">{t('artist')}:</Text>
                   <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
                     <Link fontSize="md" color="blue.500">
                       {artist.name}
@@ -417,28 +419,28 @@ export default function AlbumDetail() {
               <Box mt={4}>
                 <VStack spacing={2} align="flex-start">
                   <Flex>
-                    <Text width="120px">Release Date:</Text>
+                    <Text width="120px">{t('releaseDate')}:</Text>
                     <Text>{formatDate(album.release_date)}</Text>
                   </Flex>
                   
                   <Flex>
-                    <Text width="120px">Language:</Text>
+                    <Text width="120px">{t('language')}:</Text>
                     <Text>{album.album_lan}</Text>
                   </Flex>
                   
                   <Flex>
-                    <Text width="120px">Category:</Text>
+                    <Text width="120px">{t('category')}:</Text>
                     <Text>{album.album_category}</Text>
                   </Flex>
                   
                   <Flex>
-                    <Text width="120px">Rating:</Text>
-                    <Text>{albumRating && albumRating.average_rating > 0 ? albumRating.average_rating : "No rating now"}</Text>
+                    <Text width="120px">{t('rating')}:</Text>
+                    <Text>{albumRating && albumRating.average_rating > 0 ? albumRating.average_rating : t('noRatingNow')}</Text>
                   </Flex>
                   
                   {album.record_label && album.record_label !== "''" && (
                     <Flex>
-                      <Text fontWeight="bold" width="120px">Record Label:</Text>
+                      <Text fontWeight="bold" width="120px">{t('recordLabel')}:</Text>
                       <Text>{album.record_label}</Text>
                     </Flex>
                   )}
@@ -447,7 +449,7 @@ export default function AlbumDetail() {
               
               {albumMeta && albumMeta.info && (
                 <Box mt={6} mb={4}>
-                  <Heading as="h3" size="md" mb={3}>Description</Heading>
+                  <Heading as="h3" size="md" mb={3}>{t('description')}</Heading>
                   <Text fontSize="md" lineHeight="1.7" px={3} py={4} bg="gray.50" borderRadius="md">
                     {albumMeta.info}
                   </Text>
@@ -461,19 +463,19 @@ export default function AlbumDetail() {
         
         {/* Songs Section */}
         <Box mt={8} mb={8}>
-          <SectionHeader title={`Songs (${songs.length})`} />
+          <SectionHeader title={t('songsCount', { count: songs.length })} />
           
           {songs.length === 0 ? (
-            <Text py={4}>No songs available for this album.</Text>
+            <Text py={4}>{t('noSongsForAlbum')}</Text>
           ) : (
             <Box mt={4}>
               <Table variant="simple" size="md">
                 <Thead>
                   <Tr borderBottom="1px solid" borderColor="gray.200">
                     <Th width="60px" textAlign="center" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>#</Th>
-                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Song</Th>
-                    <Th width="120px" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Rating</Th>
-                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>Artist</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('song')}</Th>
+                    <Th width="120px" fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('rating')}</Th>
+                    <Th fontWeight="normal" fontSize="sm" color="gray.500" py={3}>{t('artist')}</Th>
                   </Tr>
                 </Thead>
                 <Tbody>

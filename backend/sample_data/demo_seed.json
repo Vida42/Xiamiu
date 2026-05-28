@@ -1,0 +1,995 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "user_name": "demo",
+      "password": "demo",
+      "location": "local",
+      "age": 21,
+      "gender": "m",
+      "constellation": "u",
+      "play_count": 0,
+      "join_time": "2026-05-26"
+    }
+  ],
+  "artists": [
+    {
+      "artist_id": "13879",
+      "name": "Stereophonics",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "2110189961",
+      "name": "AirDice",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "1260",
+      "name": "Jay Chou",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "14376",
+      "name": "The Black Keys",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "63551",
+      "name": "Oh Jin-woo",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "106166809",
+      "name": "Chen Li",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "10594",
+      "name": "The Smashing Pumpkins",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "135",
+      "name": "Eason Chan",
+      "region": "Unknown"
+    },
+    {
+      "artist_id": "1206",
+      "name": "Chang Yu-Sheng",
+      "region": "Unknown"
+    }
+  ],
+  "albums": [
+    {
+      "album_id": "114856",
+      "name": "Pull the Pin",
+      "artist_id": "13879",
+      "album_lan": "English",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "V2",
+      "listen_date": null
+    },
+    {
+      "album_id": "2104583245",
+      "name": "Your Firefly",
+      "artist_id": "2110189961",
+      "album_lan": "English",
+      "release_date": null,
+      "album_category": "EP / Single",
+      "record_label": "Musicmasters Recordings",
+      "listen_date": null
+    },
+    {
+      "album_id": "32627",
+      "name": "On the Run!",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "杰威尔音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "335129",
+      "name": "Attack & Release",
+      "artist_id": "14376",
+      "album_lan": "English",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "Nonesuch Records",
+      "listen_date": null
+    },
+    {
+      "album_id": "340852",
+      "name": "Cheerful Sassy Girl OST",
+      "artist_id": "63551",
+      "album_lan": "Korean",
+      "release_date": null,
+      "album_category": "Soundtrack",
+      "record_label": "예전미디어",
+      "listen_date": null
+    },
+    {
+      "album_id": "380285",
+      "name": "The Era",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "杰威尔音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "447940",
+      "name": "Exclamation Mark",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "杰威尔音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "5021675019",
+      "name": "Short Songs",
+      "artist_id": "106166809",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "EP / Single",
+      "record_label": "有此山文化",
+      "listen_date": null
+    },
+    {
+      "album_id": "57265",
+      "name": "Mellon Collie and the Infinite Sadness",
+      "artist_id": "10594",
+      "album_lan": "English",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "Virgin",
+      "listen_date": null
+    },
+    {
+      "album_id": "600",
+      "name": "Anyway, It's Me",
+      "artist_id": "135",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "英皇娱乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "6194",
+      "name": "Still Friends",
+      "artist_id": "1206",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "飞碟唱片",
+      "listen_date": null
+    },
+    {
+      "album_id": "6641",
+      "name": "Still Fantasy",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "阿尔发音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "6648",
+      "name": "Common Jasmine Orange",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "阿尔发音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "6650",
+      "name": "Yeh Hui-Mei",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "阿尔发音乐",
+      "listen_date": null
+    },
+    {
+      "album_id": "6655",
+      "name": "Fantasy",
+      "artist_id": "1260",
+      "album_lan": "Mandarin",
+      "release_date": null,
+      "album_category": "Studio Album",
+      "record_label": "阿尔发音乐",
+      "listen_date": null
+    }
+  ],
+  "album_meta": [
+    {
+      "album_id": "114856",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img79/13879/1148561375955150.jpg"
+    },
+    {
+      "album_id": "2104583245",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img29/126/5c5d27777eb6f_6315629_1549608823.jpg"
+    },
+    {
+      "album_id": "32627",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img93/405993/326271517405994.png"
+    },
+    {
+      "album_id": "335129",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/imgs/129/195/bd059c1f_335129_1533234719253.jpeg"
+    },
+    {
+      "album_id": "340852",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img52/340852/132257_1_f.jpg"
+    },
+    {
+      "album_id": "380285",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img60/1260/3802851472020089.jpg"
+    },
+    {
+      "album_id": "447940",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img60/1260/4479401425876821.jpg"
+    },
+    {
+      "album_id": "5021675019",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img71/612071/50216750191602612071.jpg"
+    },
+    {
+      "album_id": "57265",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img94/10594/572651390445253.jpg"
+    },
+    {
+      "album_id": "600",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img35/135/6001391763423.jpg"
+    },
+    {
+      "album_id": "6194",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img38/431838/61941521431839.jpg"
+    },
+    {
+      "album_id": "6641",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img7/958707/66411509958708.jpg"
+    },
+    {
+      "album_id": "6648",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img60/1260/66481367564280.jpg"
+    },
+    {
+      "album_id": "6650",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img5/51/5acc8814668bf_2599705_1523353620.jpg"
+    },
+    {
+      "album_id": "6655",
+      "info": "",
+      "pic_address": "https://pic.xiami.net/images/album/img47/479547/66551608479548.jpg"
+    }
+  ],
+  "songs": [
+    {
+      "song_id": "1185430",
+      "name": "Daisy Lane",
+      "order": 5,
+      "album_id": "114856"
+    },
+    {
+      "song_id": "1185437",
+      "name": "Drowning",
+      "order": 12,
+      "album_id": "114856"
+    },
+    {
+      "song_id": "1810046570",
+      "name": "Your Firefly",
+      "order": 2,
+      "album_id": "2104583245"
+    },
+    {
+      "song_id": "388453",
+      "name": "The Cowboy Is Busy",
+      "order": 1,
+      "album_id": "32627"
+    },
+    {
+      "song_id": "388454",
+      "name": "Rainbow",
+      "order": 2,
+      "album_id": "32627"
+    },
+    {
+      "song_id": "388455",
+      "name": "Blue and White Porcelain",
+      "order": 3,
+      "album_id": "32627"
+    },
+    {
+      "song_id": "1768969135",
+      "name": "So He Won't Break",
+      "order": 9,
+      "album_id": "335129"
+    },
+    {
+      "song_id": "1769040738",
+      "name": "Love Song",
+      "order": 1,
+      "album_id": "340852"
+    },
+    {
+      "song_id": "1769509865",
+      "name": "The Era",
+      "order": 1,
+      "album_id": "380285"
+    },
+    {
+      "song_id": "1769509866",
+      "name": "Said Goodbye",
+      "order": 2,
+      "album_id": "380285"
+    },
+    {
+      "song_id": "1769509867",
+      "name": "Fireworks Cool Easily",
+      "order": 3,
+      "album_id": "380285"
+    },
+    {
+      "song_id": "1770567884",
+      "name": "Exclamation Mark",
+      "order": 1,
+      "album_id": "447940"
+    },
+    {
+      "song_id": "1770596983",
+      "name": "Soul Lullaby",
+      "order": 2,
+      "album_id": "447940"
+    },
+    {
+      "song_id": "1770584311",
+      "name": "Mine Mine",
+      "order": 3,
+      "album_id": "447940"
+    },
+    {
+      "song_id": "2105825751",
+      "name": "Short Song",
+      "order": 1,
+      "album_id": "5021675019"
+    },
+    {
+      "song_id": "2079465",
+      "name": "1979",
+      "order": 5,
+      "album_id": "57265"
+    },
+    {
+      "song_id": "384595",
+      "name": "The Whole World Is Insomniac",
+      "order": 9,
+      "album_id": "600"
+    },
+    {
+      "song_id": "378116",
+      "name": "Still Friends",
+      "order": 1,
+      "album_id": "6194"
+    },
+    {
+      "song_id": "376015",
+      "name": "Chapter Seven of the Night",
+      "order": 1,
+      "album_id": "6641"
+    },
+    {
+      "song_id": "376016",
+      "name": "Listen to Mom",
+      "order": 2,
+      "album_id": "6641"
+    },
+    {
+      "song_id": "376017",
+      "name": "Faraway",
+      "order": 3,
+      "album_id": "6641"
+    },
+    {
+      "song_id": "376005",
+      "name": "My Territory",
+      "order": 1,
+      "album_id": "6648"
+    },
+    {
+      "song_id": "376006",
+      "name": "Common Jasmine Orange",
+      "order": 2,
+      "album_id": "6648"
+    },
+    {
+      "song_id": "376007",
+      "name": "Excuse",
+      "order": 3,
+      "album_id": "6648"
+    },
+    {
+      "song_id": "376047",
+      "name": "In the Name of the Father",
+      "order": 1,
+      "album_id": "6650"
+    },
+    {
+      "song_id": "376048",
+      "name": "Coward",
+      "order": 2,
+      "album_id": "6650"
+    },
+    {
+      "song_id": "376049",
+      "name": "Sunny Day",
+      "order": 3,
+      "album_id": "6650"
+    },
+    {
+      "song_id": "376062",
+      "name": "Love Before BC",
+      "order": 1,
+      "album_id": "6655"
+    },
+    {
+      "song_id": "376063",
+      "name": "Dad, I'm Home",
+      "order": 2,
+      "album_id": "6655"
+    },
+    {
+      "song_id": "376064",
+      "name": "Simple Love",
+      "order": 3,
+      "album_id": "6655"
+    }
+  ],
+  "genre_categories": [
+    {
+      "id": 0,
+      "name": "Demo Styles",
+      "info": "",
+      "info_zh": null,
+      "info_en": "Public-safe demo category for sampled styles."
+    }
+  ],
+  "genres": [
+    {
+      "id": 234,
+      "name": "Contemporary R&B",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 689,
+      "name": "Post-Grunge",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 835,
+      "name": "Pop Rock",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 842,
+      "name": "Electronic",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 956,
+      "name": "Neo-Psychedelia",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 1331,
+      "name": "Alternative Rock",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 1338,
+      "name": "Grunge",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 1381,
+      "name": "Psychedelic Rock",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 1541,
+      "name": "Mandarin Pop",
+      "info": "",
+      "category_id": 0
+    },
+    {
+      "id": 3092,
+      "name": "Chinese Singer-Songwriter",
+      "info": "",
+      "category_id": 0
+    }
+  ],
+  "album_genre_link": [
+    {
+      "album_id": "114856",
+      "genre_id": 689
+    },
+    {
+      "album_id": "114856",
+      "genre_id": 835
+    },
+    {
+      "album_id": "114856",
+      "genre_id": 1331
+    },
+    {
+      "album_id": "2104583245",
+      "genre_id": 842
+    },
+    {
+      "album_id": "32627",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "32627",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "380285",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "380285",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "447940",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "447940",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "5021675019",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "5021675019",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "57265",
+      "genre_id": 956
+    },
+    {
+      "album_id": "57265",
+      "genre_id": 1331
+    },
+    {
+      "album_id": "57265",
+      "genre_id": 1338
+    },
+    {
+      "album_id": "57265",
+      "genre_id": 1381
+    },
+    {
+      "album_id": "600",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "600",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "6194",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "6194",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "6641",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "6641",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "6648",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "6648",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "6650",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "6650",
+      "genre_id": 3092
+    },
+    {
+      "album_id": "6655",
+      "genre_id": 234
+    },
+    {
+      "album_id": "6655",
+      "genre_id": 1541
+    },
+    {
+      "album_id": "6655",
+      "genre_id": 3092
+    }
+  ],
+  "artist_genre_link": [
+    {
+      "artist_id": "13879",
+      "genre_id": 689
+    },
+    {
+      "artist_id": "13879",
+      "genre_id": 835
+    },
+    {
+      "artist_id": "13879",
+      "genre_id": 1331
+    },
+    {
+      "artist_id": "2110189961",
+      "genre_id": 842
+    },
+    {
+      "artist_id": "1260",
+      "genre_id": 1541
+    },
+    {
+      "artist_id": "1260",
+      "genre_id": 3092
+    },
+    {
+      "artist_id": "106166809",
+      "genre_id": 1541
+    },
+    {
+      "artist_id": "106166809",
+      "genre_id": 3092
+    },
+    {
+      "artist_id": "10594",
+      "genre_id": 956
+    },
+    {
+      "artist_id": "10594",
+      "genre_id": 1331
+    },
+    {
+      "artist_id": "10594",
+      "genre_id": 1338
+    },
+    {
+      "artist_id": "10594",
+      "genre_id": 1381
+    },
+    {
+      "artist_id": "135",
+      "genre_id": 1541
+    },
+    {
+      "artist_id": "135",
+      "genre_id": 3092
+    },
+    {
+      "artist_id": "1206",
+      "genre_id": 1541
+    },
+    {
+      "artist_id": "1206",
+      "genre_id": 3092
+    },
+    {
+      "artist_id": "1260",
+      "genre_id": 234
+    }
+  ],
+  "album_comments": [
+    {
+      "album_id": "57265",
+      "comment": "Skimmed through; their most famous record but I don't actually love it. Why did I trek all the way to Seattle to see them live again?",
+      "user_id": 1,
+      "star": 3,
+      "num_like": 0
+    },
+    {
+      "album_id": "335129",
+      "comment": "A stranger feel overall; much less of the raw, rugged guitar work.",
+      "user_id": 1,
+      "star": 3,
+      "num_like": 0
+    }
+  ],
+  "song_comments": [
+    {
+      "song_id": "376047",
+      "comment": "Rated 5/5 on track 1",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376049",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376048",
+      "comment": "Rated 4/5 on track 2",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    },
+    {
+      "song_id": "1768969135",
+      "comment": "Rated 4/5 on track 9",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    },
+    {
+      "song_id": "1769509867",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "1769509865",
+      "comment": "autotune",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    },
+    {
+      "song_id": "1769509866",
+      "comment": "Rated 3/5 on track 2",
+      "user_id": 1,
+      "star": 3,
+      "num_like": 0
+    },
+    {
+      "song_id": "376015",
+      "comment": "Rated 5/5 on track 1",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376016",
+      "comment": "Rated 5/5 on track 2",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376017",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376005",
+      "comment": "Rated 5/5 on track 1",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376006",
+      "comment": "Rated 5/5 on track 2",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376007",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "1770584311",
+      "comment": "mine mine",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "1770567884",
+      "comment": "Why does this keep skipping for me?",
+      "user_id": 1,
+      "star": 3,
+      "num_like": 0
+    },
+    {
+      "song_id": "1770596983",
+      "comment": "lots of autotune",
+      "user_id": 1,
+      "star": 2,
+      "num_like": 0
+    },
+    {
+      "song_id": "388454",
+      "comment": "Rated 5/5 on track 2",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "388455",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "388453",
+      "comment": "Rated 4/5 on track 1",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    },
+    {
+      "song_id": "1185430",
+      "comment": "Rated 5/5 on track 5",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "1185437",
+      "comment": "Rated 5/5 on track 12",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376064",
+      "comment": "Rated 5/5 on track 3",
+      "user_id": 1,
+      "star": 5,
+      "num_like": 0
+    },
+    {
+      "song_id": "376062",
+      "comment": "Rated 4/5 on track 1",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    },
+    {
+      "song_id": "376063",
+      "comment": "Rated 4/5 on track 2",
+      "user_id": 1,
+      "star": 4,
+      "num_like": 0
+    }
+  ],
+  "taste_profile": {
+    "id": 1,
+    "user_id": 1,
+    "profile_text": "This listener gravitates toward Mandarin pop and Chinese singer-songwriter work (Jay Chou dominates positively), blended with selective 1990s–2000s alt-rock touchstones: The Smashing Pumpkins' *Mellon Collie* essentials, Stereophonics' Britpop-leaning catalogue, and The White Stripes / Black Keys blues-garage rawness when riffs and melody remain present. Within rock, they favour clean hookiness and restraint over pure noise—\"Seven Nation Army\" (rated 5★), Stereophonics' \"Have a Nice Day\" (5★), and The Black Keys' \"Psychotic Girl\" (5★) exemplify approachable alt-rock with structural clarity. However, they exhibit stark internal contradictions: both artist and genre weights show strong negative signals (Jay Chou −16.8, Alternative Rock −17.5 alongside positive counterparts), reflecting track-level volatility—Jay Chou's later work often scores 1–2★ with comments tagged as \"saccharine\" or \"too pop,\" while his early albums (*Yeh Hui-Mei*, *Common Jasmine Orange*) sustain 5★ ratings. Similarly, they prize Stereophonics' *Just Enough Education to Perform* (5★ tracks, \"feel of spring\") yet downrate much of *Performance and Cocktails*. They explicitly dislike experimental excess (Childish Gambino's *\"Awaken, My Love!\"* marked chaotic; *Because the Internet* called \"a waste of the listener's time\"), excessive auto-tune / artifice (Jay Chou's *The Era*, *Exclamation Mark*), and prolonged instrumental passages that obscure melody. Sade and neo-soul smooth surfaces become dismissed as \"background music\" unfit for active listening. Their taste demands immediate melodic engagement and songcraft clarity over artistic obscurity.",
+    "inputs_hash": "4ffb7656e4d21f8b",
+    "cache_key": "4718f57a1d20296e",
+    "model": "claude-haiku-4-5-20251001",
+    "prompt_version": "v1",
+    "input_tokens": 64095,
+    "output_tokens": 455
+  },
+  "recommendation": {
+    "id": 1,
+    "user_id": 1,
+    "taste_profile_id": 1,
+    "generation_method": "embedding_centroid+llm_judge_v1",
+    "embedding_model": "BAAI/bge-m3",
+    "judge_model": "claude-haiku-4-5",
+    "top_n": 3,
+    "notes": "Demo subset of original 50-item Day 6 run"
+  },
+  "recommendation_items": [
+    {
+      "id": 1,
+      "recommendation_id": 1,
+      "album_id": "600",
+      "artist_name": "Eason Chan",
+      "album_name": "Anyway, It's Me",
+      "rank": 1,
+      "similarity_score": 0.837,
+      "fit_score": 7.2,
+      "reason": "Eason Chan's Anyway, It's Me aligns with the listener's core Mandarin pop and Chinese singer-songwriter foundation, evidenced by the 0.8370 embedding similarity and nearest neighbors all being Jay Chou's mainstream catalogue (On the Run!, Still Fantasy) which the listener rates 5★ consistently; Eason Chan's sophisticated vocal delivery and songcraft clarity match the demand for \"immediate melodic engagement and songcraft clarity\" over obscurity.",
+      "risk": null,
+      "nearest_neighbors_json": "[{\"albumId\": 32627, \"artistName\": \"Jay Chou\", \"albumName\": \"On the Run!\", \"similarity\": 0.8223, \"ratingHistogram\": {\"5\": 4, \"4\": 4, \"3\": 2}}, {\"albumId\": 6641, \"artistName\": \"Jay Chou\", \"albumName\": \"Still Fantasy\", \"similarity\": 0.8216, \"ratingHistogram\": {\"5\": 8, \"4\": 1, \"2\": 1}}, {\"albumId\": 1029065888, \"artistName\": \"Jay Chou\", \"albumName\": \"Aiyo, Not Bad\", \"similarity\": 0.8213, \"ratingHistogram\": {\"5\": 1, \"4\": 4, \"3\": 5, \"2\": 2}}]",
+      "styles_json": "[\"Mandarin Pop\", \"Chinese Singer-Songwriter\"]",
+      "judge_cache_key": "ed761d690448f984",
+      "play_count": 8676469,
+      "collects": 1807,
+      "recommends": 296
+    },
+    {
+      "id": 4,
+      "recommendation_id": 1,
+      "album_id": "6194",
+      "artist_name": "Chang Yu-Sheng",
+      "album_name": "Still Friends",
+      "rank": 2,
+      "similarity_score": 0.8183,
+      "fit_score": 7.2,
+      "reason": "Chang Yu-Sheng's *Still Friends* aligns strongly with the listener's core positive anchor—early Jay Chou singer-songwriter melodicism and Mandarin pop craft—evidenced by 0.8183 embedding similarity and nearest neighbors all from Jay Chou's strongest-rated early albums (*Still Fantasy*, *Common Jasmine Orange*), where immediate hooks and songcraft clarity dominate; Chang Yu-Sheng is a canonical 1990s Mandarin pop craftsman known for melodic clarity and restraint.",
+      "risk": "The listener's volatile track-level ratings within even beloved Mandarin pop albums (Jay Chou showing 1–2★ marks alongside 5★s) and explicit dismissal of saccharine artifice ('saccharine', 'too pop') means later-era production polish or overly polished arrangements on *Still Friends* could trigger the same 'too pop' fatigue that downrated Jay Chou's later work, despite strong genre-artist alignment on paper.",
+      "nearest_neighbors_json": "[{\"albumId\": 6641, \"artistName\": \"Jay Chou\", \"albumName\": \"Still Fantasy\", \"similarity\": 0.8174, \"ratingHistogram\": {\"5\": 8, \"4\": 1, \"2\": 1}}, {\"albumId\": 6648, \"artistName\": \"Jay Chou\", \"albumName\": \"Common Jasmine Orange\", \"similarity\": 0.7856, \"ratingHistogram\": {\"5\": 7, \"4\": 2, \"2\": 1}}, {\"albumId\": 1029065888, \"artistName\": \"Jay Chou\", \"albumName\": \"Aiyo, Not Bad\", \"similarity\": 0.7845, \"ratingHistogram\": {\"5\": 1, \"4\": 4, \"3\": 5, \"2\": 2}}]",
+      "styles_json": "[\"Mandarin Pop\", \"Chinese Singer-Songwriter\"]",
+      "judge_cache_key": "6834b5f22c58a651",
+      "play_count": 1031603,
+      "collects": 841,
+      "recommends": 231
+    },
+    {
+      "id": 9,
+      "recommendation_id": 1,
+      "album_id": "5021675019",
+      "artist_name": "Chen Li",
+      "album_name": "Short Songs",
+      "rank": 3,
+      "similarity_score": 0.8071,
+      "fit_score": 6.8,
+      "reason": "Chen Li's *Short Song* aligns with the listener's core Mandarin singer-songwriter foundation and clean melodic sensibility (0.8071 embedding similarity; nearest neighbors are early Jay Chou albums rated 5★), but the album's introspective, minimalist arrangement style risks triggering their documented aversion to sparse instrumentation and 'background music' passivity that they flagged in Sade and neo-soul contexts.",
+      "risk": "Chen Li's signature intimate vocal-forward production and restrained instrumental palette may read as insufficiently 'hooky' or structurally vivid compared to the listener's validated preference for Stereophonics' rhythmic clarity and The White Stripes' riff-driven directness; if tracks prioritize lyrical subtlety over melodic immediacy, the album could be rated as introspective filler rather than active-listening engagement.",
+      "nearest_neighbors_json": "[{\"albumId\": 6648, \"artistName\": \"Jay Chou\", \"albumName\": \"Common Jasmine Orange\", \"similarity\": 0.7901, \"ratingHistogram\": {\"5\": 7, \"4\": 2, \"2\": 1}}, {\"albumId\": 32627, \"artistName\": \"Jay Chou\", \"albumName\": \"On the Run!\", \"similarity\": 0.7878, \"ratingHistogram\": {\"5\": 4, \"4\": 4, \"3\": 2}}, {\"albumId\": 380285, \"artistName\": \"Jay Chou\", \"albumName\": \"The Era\", \"similarity\": 0.7873, \"ratingHistogram\": {\"5\": 2, \"4\": 2, \"3\": 3, \"2\": 3, \"1\": 1}}]",
+      "styles_json": "[\"Mandarin Pop\", \"Chinese Singer-Songwriter\"]",
+      "judge_cache_key": "f6ca54205ce230a8",
+      "play_count": 1140155,
+      "collects": 47,
+      "recommends": 12
+    }
+  ]
+}

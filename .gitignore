@@ -1,5 +1,15 @@
+# Private local data
+private_data/
+local_reports/
+
+# Local implementation notes
+docs/ai-recommendation-demo-plan.md
+docs/implementation-context.md
+backend/DB_MANAGEMENT.md
+
 # Environment variables
 .env
+.env.*
 
 # Python
 __pycache__/
@@ -25,7 +35,16 @@ var/
 
 # Virtual Environment
 venv/
+.venv/
 ENV/
+
+# Node
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # IDE files
 .idea/
@@ -43,4 +62,4 @@ logs/
 
 # OS specific
 .DS_Store
-Thumbs.db 
+Thumbs.db

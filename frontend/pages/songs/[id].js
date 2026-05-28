@@ -8,6 +8,7 @@ import { StarRating, CommentForm, CommentItem, DeleteConfirmationDialog } from '
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '@chakra-ui/react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // SectionHeader component for consistent styling
 const SectionHeader = ({ title }) => {
@@ -39,6 +40,7 @@ export default function SongDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const { isAuthenticated, user } = useAuth();
+  const { t, language } = useLanguage();
   const [commentToDelete, setCommentToDelete] = useState(null);
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
@@ -121,7 +123,7 @@ export default function SongDetail() {
         
       } catch (err) {
         console.error('Error fetching song data:', err);
-        setError('Failed to load song details. Please try again later.');
+        setError(t('failedLoadSongDetails'));
       } finally {
         setIsLoading(false);
       }
@@ -137,8 +139,8 @@ export default function SongDetail() {
       const updatedComments = await api.getSongComments(id);
       setComments(updatedComments);
       toast({
-        title: "Comment added",
-        description: "Your comment has been added successfully.",
+        title: t('commentSubmitted'),
+        description: t('commentAddedDescription'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -146,8 +148,8 @@ export default function SongDetail() {
     } catch (error) {
       console.error('Error adding comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to add the comment. Please try again.",
+        title: t('error'),
+        description: t('submitFailed'),
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -163,8 +165,8 @@ export default function SongDetail() {
       // Remove the comment from the local state
       setComments(comments.filter(c => c.id !== commentToDelete.id));
       toast({
-        title: "Comment deleted",
-        description: "Your comment has been deleted successfully.",
+        title: t('commentDeleted'),
+        description: t('commentDeletedDescription'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -172,8 +174,8 @@ export default function SongDetail() {
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete the comment. Please try again.",
+        title: t('error'),
+        description: t('failedDeleteComment'),
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -197,7 +199,7 @@ export default function SongDetail() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -206,7 +208,7 @@ export default function SongDetail() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Text>Loading song details...</Text>
+          <Text>{t('loadingSongDetails')}</Text>
         </Box>
       );
     }
@@ -214,11 +216,11 @@ export default function SongDetail() {
     if (!song) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Song Not Found</Heading>
-          <Text>The song you're looking for doesn't exist.</Text>
+          <Heading mb={4}>{t('songNotFound')}</Heading>
+          <Text>{t('songNotFoundHelp')}</Text>
           <NextLink href="/songs" passHref legacyBehavior>
             <Link color="blue.500" mt={4} display="inline-block">
-              Back to Songs
+              {t('backToSongs')}
             </Link>
           </NextLink>
         </Box>
@@ -251,7 +253,7 @@ export default function SongDetail() {
               <VStack spacing={2} align="flex-start">
                 {album && (
                   <Flex>
-                    <Text width="120px">Album:</Text>
+                    <Text width="120px">{t('album')}:</Text>
                     <NextLink href={`/albums/${album.album_id}`} passHref legacyBehavior>
                       <Link color="blue.500">{album.name}</Link>
                     </NextLink>
@@ -260,7 +262,7 @@ export default function SongDetail() {
                 
                 {artist && (
                   <Flex>
-                    <Text width="120px">Artist:</Text>
+                    <Text width="120px">{t('artist')}:</Text>
                     <NextLink href={`/artists/${artist.artist_id}`} passHref legacyBehavior>
                       <Link color="blue.500">{artist.name}</Link>
                     </NextLink>
@@ -268,8 +270,8 @@ export default function SongDetail() {
                 )}
                 
                 <Flex>
-                  <Text width="120px">Rating:</Text>
-                  <Text>{songRating?.average_rating ? `${songRating.average_rating}` : 'No rating now'}</Text>
+                  <Text width="120px">{t('rating')}:</Text>
+                  <Text>{songRating?.average_rating ? `${songRating.average_rating}` : t('noRatingNow')}</Text>
                 </Flex>
               </VStack>
             </Box>
@@ -278,15 +280,15 @@ export default function SongDetail() {
         
         {/* Lyrics Section */}
         <Box mt={8}>
-          <Heading size="md" mb={4}>Lyrics</Heading>
+          <Heading size="md" mb={4}>{t('lyrics')}</Heading>
           <Box bg="gray.50" p={4} borderRadius="md">
-            <Text whiteSpace="pre-wrap">{songMeta?.lyrics || 'NO LYRICS FOR NOW'}</Text>
+            <Text whiteSpace="pre-wrap">{songMeta?.lyrics || t('noLyrics')}</Text>
           </Box>
         </Box>
         
         {/* Comments Section */}
         <Box mt={8} mb={8}>
-          <SectionHeader title={`Comments (${comments.length})`} />
+          <SectionHeader title={t('commentsCount', { count: comments.length })} />
           
           {isAuthenticated && (
             <Box mb={6} p={4} bg="gray.50" borderRadius="md">
@@ -294,13 +296,13 @@ export default function SongDetail() {
                 onSubmit={handleCommentSubmit}
                 showRating={true}
                 maxChars={200}
-                placeholder="Share your thoughts about this song (200 characters max)"
+                placeholder={t('shareSongThoughts')}
               />
             </Box>
           )}
           
           {comments.length === 0 ? (
-            <Text py={4}>No comments available for this song.</Text>
+            <Text py={4}>{t('noCommentsForSong')}</Text>
           ) : (
             <VStack spacing={4} align="stretch">
               {comments.map(comment => (
@@ -312,7 +314,7 @@ export default function SongDetail() {
                     setCommentToDelete(comment);
                     openDeleteDialog();
                   }}
-                  formatDate={(date) => new Date(date).toLocaleDateString('en-US', { 
+                  formatDate={(date) => new Date(date).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', { 
                     month: 'numeric', 
                     day: 'numeric', 
                     year: 'numeric'

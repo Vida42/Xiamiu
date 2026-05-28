@@ -3,8 +3,10 @@ import { Heading, Text, SimpleGrid, Box, Flex, Select, Link, Grid, GridItem, VSt
 import { api } from '../../utils/api';
 import { AlbumCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function Albums() {
+  const { t } = useLanguage();
   const [albums, setAlbums] = useState([]);
   const [filteredAlbums, setFilteredAlbums] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -18,11 +20,11 @@ export default function Albums() {
   const itemsPerPage = 8;
   
   const albumFilters = [
-    { id: 'popular', label: '热门' },
-    { id: 'Mandarin', label: '华语' },
-    { id: 'English', label: '欧美' },
-    { id: 'Japanese', label: '日语' },
-    { id: 'Korean', label: '韩语' },
+    { id: 'popular', label: t('popular') },
+    { id: 'Mandarin', label: t('chinese') },
+    { id: 'English', label: t('western') },
+    { id: 'Japanese', label: t('japanese') },
+    { id: 'Korean', label: t('korean') },
   ];
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function Albums() {
         setGenres(genresData);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(t('failedLoadData'));
       } finally {
         setIsLoading(false);
       }
@@ -92,7 +94,7 @@ export default function Albums() {
           console.error(`Error fetching albums for language ${activeFilter}:`, err);
           if (isMounted) {
             applySort([]);
-            setError(`Failed to load ${activeFilter} albums. Please try again later.`);
+            setError(t('failedLoadData'));
             setIsFilterLoading(false);
           }
         }
@@ -181,7 +183,7 @@ export default function Albums() {
   const renderGenreList = () => {
     return (
       <VStack align="stretch" spacing={2} mb={6}>
-        <Heading size="sm" mb={2}>音乐风格</Heading>
+        <Heading size="sm" mb={2}>{t('musicStyles')}</Heading>
         <Box 
           as="div" 
           onClick={() => setActiveGenre(null)} 
@@ -193,7 +195,7 @@ export default function Albums() {
           fontWeight={activeGenre === null ? "bold" : "normal"}
           _hover={{ bg: "#f70" }}
         >
-          全部风格
+          {t('allStyles')}
         </Box>
         <Divider />
         {genres.map(genre => (
@@ -256,7 +258,7 @@ export default function Albums() {
     if (error && !filteredAlbums.length) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -271,7 +273,7 @@ export default function Albums() {
         
         {/* Main content */}
         <GridItem>
-          <Heading size="md" mb={6}>Albums</Heading>
+          <Heading size="md" mb={6}>{t('albums')}</Heading>
           
           <Flex 
             direction={{ base: 'column', md: 'row' }} 
@@ -312,26 +314,31 @@ export default function Albums() {
               }}
               maxW={{ base: '100%', md: '200px' }}
             >
-              <option value="name">名称 (A-Z)</option>
-              <option value="release_date_newest">最新发行</option>
-              <option value="release_date_oldest">最早发行</option>
-              <option value="rating">评分最高</option>
+              <option value="name">{t('nameSort')}</option>
+              <option value="release_date_newest">{t('newestRelease')}</option>
+              <option value="release_date_oldest">{t('oldestRelease')}</option>
+              <option value="rating">{t('highestRating')}</option>
             </Select>
           </Flex>
     
           {isLoading || isFilterLoading ? (
             <Flex justify="center" py={10}>
-              <Text>Loading albums...</Text>
+              <Text>{t('loadingAlbums')}</Text>
             </Flex>
           ) : currentPageAlbums.length === 0 ? (
             <Box textAlign="center" py={10}>
-              <Text>No albums found with the selected filters</Text>
+              <Text>{t('noAlbumsFound')}</Text>
             </Box>
           ) : (
             <>
               <Flex justify="space-between" mb={4} align="center">
                 <Text fontSize="sm" color="gray.600">
-                  Showing {(page - 1) * itemsPerPage + 1}-{Math.min(page * itemsPerPage, filteredAlbums.length)} of {filteredAlbums.length} albums
+                  {t('showingRange', {
+                    start: (page - 1) * itemsPerPage + 1,
+                    end: Math.min(page * itemsPerPage, filteredAlbums.length),
+                    total: filteredAlbums.length,
+                    item: t('albumItem'),
+                  })}
                 </Text>
               </Flex>
               

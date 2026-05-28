@@ -6,8 +6,10 @@ import { AlbumCard, SongCard } from '../components/Cards/index';
 import NextLink from 'next/link';
 import XiamiuLayout from '../components/Layout/XiamiuLayout';
 import PlaylistSection from '../components/PlaylistSection';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SectionHeader = ({ title, showMore = true }) => {
+  const { t } = useLanguage();
   return (
     <Flex justify="space-between" align="center" mb={4}>
       <Flex align="center">
@@ -27,7 +29,7 @@ const SectionHeader = ({ title, showMore = true }) => {
               fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif"
               fontSize="14px"
             >
-              / 更多
+              {t('more')}
             </Link>
           </NextLink>
         )}
@@ -63,6 +65,7 @@ const LanguageFilter = ({ languages, selectedLang, onSelect }) => {
 };
 
 export default function Home() {
+  const { t } = useLanguage();
   const [featuredArtists, setFeaturedArtists] = useState([]);
   const [newAlbums, setNewAlbums] = useState([]);
   const [topSongs, setTopSongs] = useState([]);
@@ -73,11 +76,11 @@ export default function Home() {
   const [filteredAlbums, setFilteredAlbums] = useState([]);
   
   const languages = [
-    { label: '全部', value: 'all' },
-    { label: '华语', value: 'chinese' },
-    { label: '欧美', value: 'western' },
-    { label: '日本', value: 'japanese' },
-    { label: '韩国', value: 'korean' }
+    { label: t('all'), value: 'all' },
+    { label: t('chinese'), value: 'chinese' },
+    { label: t('western'), value: 'western' },
+    { label: t('japanese'), value: 'japanese' },
+    { label: t('korean'), value: 'korean' }
   ];
 
   useEffect(() => {
@@ -110,7 +113,7 @@ export default function Home() {
         setRecommendedSongs(recommendedSongs.slice(0, 5));
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(t('failedLoadData'));
       } finally {
         setIsLoading(false);
       }
@@ -140,9 +143,9 @@ export default function Home() {
     return (
       <XiamiuLayout>
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Oh no!</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text mb={6}>{error}</Text>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button onClick={() => window.location.reload()}>{t('tryAgain')}</Button>
         </Box>
       </XiamiuLayout>
     );
@@ -152,13 +155,13 @@ export default function Home() {
     <XiamiuLayout>
       {isLoading ? (
         <Flex justify="center" align="center" height="200px">
-          <Text>Loading...</Text>
+          <Text>{t('loading')}</Text>
         </Flex>
       ) : (
         <>
           {/* Recommended Songs Section */}
           <Box mb={12}>
-            <SectionHeader title="猜你喜欢" />
+            <SectionHeader title={t('recommendedSongs')} />
             <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing={3}>
               {recommendedSongs.map(song => (
                 <SongCard key={song.song_id} song={song} />
@@ -168,7 +171,7 @@ export default function Home() {
 
           {/* New Albums Section */}
           <Box mb={12}>
-            <SectionHeader title="新碟首发" />
+            <SectionHeader title={t('newAlbums')} />
             <LanguageFilter
               languages={languages}
               selectedLang={selectedLang}

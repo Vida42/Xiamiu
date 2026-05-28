@@ -5,6 +5,7 @@ import { Box, Heading, Text, SimpleGrid, Tabs, TabList, Tab, TabPanels, TabPanel
 import { api } from '../../utils/api';
 import { ArtistCard, AlbumCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function GenreDetail() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function GenreDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchGenreData = async () => {
@@ -47,7 +49,7 @@ export default function GenreDetail() {
         
       } catch (err) {
         console.error('Error fetching genre data:', err);
-        setError('Failed to load genre details. Please try again later.');
+        setError(t('failedLoadGenreDetails'));
       } finally {
         setIsLoading(false);
       }
@@ -62,7 +64,7 @@ export default function GenreDetail() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -71,7 +73,7 @@ export default function GenreDetail() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Text>Loading genre details...</Text>
+          <Text>{t('loadingGenreDetails')}</Text>
         </Box>
       );
     }
@@ -79,11 +81,11 @@ export default function GenreDetail() {
     if (!genre) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Genre Not Found</Heading>
-          <Text>The genre you're looking for doesn't exist.</Text>
+          <Heading mb={4}>{t('genreNotFound')}</Heading>
+          <Text>{t('genreNotFoundHelp')}</Text>
           <NextLink href="/genres" passHref legacyBehavior>
             <Link color="blue.500" mt={4} display="inline-block">
-              Back to Genres
+              {t('backToGenres')}
             </Link>
           </NextLink>
         </Box>
@@ -112,12 +114,12 @@ export default function GenreDetail() {
           >
             <Box as="li" className={activeTab === 0 ? "active" : ""}>
               <Link onClick={() => setActiveTab(0)}>
-                Artists
+                {t('artists')}
               </Link>
             </Box>
             <Box as="li" className={activeTab === 1 ? "active" : ""}>
               <Link onClick={() => setActiveTab(1)}>
-                Albums
+                {t('albums')}
               </Link>
             </Box>
           </Flex>
@@ -126,9 +128,9 @@ export default function GenreDetail() {
             <Box>
               {relatedArtists.length === 0 ? (
                 <Box py={4}>
-                  <Text>No artists available for this genre.</Text>
+                  <Text>{t('noArtistsForGenre')}</Text>
                   <Text fontSize="sm" color="gray.500" mt={2}>
-                    This is a placeholder. In a complete implementation, this would show artists in this genre.
+                    {t('genrePlaceholderArtists')}
                   </Text>
                 </Box>
               ) : (
@@ -143,9 +145,9 @@ export default function GenreDetail() {
             <Box>
               {relatedAlbums.length === 0 ? (
                 <Box py={4}>
-                  <Text>No albums available for this genre.</Text>
+                  <Text>{t('noAlbumsForGenre')}</Text>
                   <Text fontSize="sm" color="gray.500" mt={2}>
-                    This is a placeholder. In a complete implementation, this would show albums in this genre.
+                    {t('genrePlaceholderAlbums')}
                   </Text>
                 </Box>
               ) : (

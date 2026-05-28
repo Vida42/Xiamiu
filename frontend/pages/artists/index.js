@@ -3,8 +3,10 @@ import { Heading, Text, SimpleGrid, Box, Flex, Link, Grid, GridItem, VStack, Div
 import { api } from '../../utils/api';
 import { ArtistCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function Artists() {
+  const { t } = useLanguage();
   const [artists, setArtists] = useState([]);
   const [filteredArtists, setFilteredArtists] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -18,7 +20,7 @@ export default function Artists() {
   const itemsPerPage = 8;
   
   const artistFilters = [
-    { id: 'popular', label: '热门' },
+    { id: 'popular', label: t('popular') },
     { id: 'China', label: '中国' },
     { id: 'United States of America', label: '美国' },
     { id: 'United Kingdom', label: '英国' },
@@ -39,7 +41,7 @@ export default function Artists() {
         setGenres(genresData);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load data. Please try again later.');
+        setError(t('failedLoadData'));
       } finally {
         setIsLoading(false);
       }
@@ -91,7 +93,7 @@ export default function Artists() {
           console.error(`Error fetching artists for region ${activeFilter}:`, err);
           if (isMounted) {
             applySort([]);
-            setError(`Failed to load ${activeFilter} artists. Please try again later.`);
+            setError(t('failedLoadData'));
             setIsFilterLoading(false);
           }
         }
@@ -175,7 +177,7 @@ export default function Artists() {
   const renderGenreList = () => {
     return (
       <VStack align="stretch" spacing={2} mb={6}>
-        <Heading size="sm" mb={2}>音乐风格</Heading>
+        <Heading size="sm" mb={2}>{t('musicStyles')}</Heading>
         <Box 
           as="div" 
           onClick={() => setActiveGenre(null)} 
@@ -187,7 +189,7 @@ export default function Artists() {
           fontWeight={activeGenre === null ? "bold" : "normal"}
           _hover={{ bg: "#f70" }}
         >
-          全部风格
+          {t('allStyles')}
         </Box>
         <Divider />
         {genres.map(genre => (
@@ -250,7 +252,7 @@ export default function Artists() {
     if (error && !filteredArtists.length) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -265,7 +267,7 @@ export default function Artists() {
         
         {/* Main content */}
         <GridItem>
-          <Heading size="md" mb={6}>Artists</Heading>
+          <Heading size="md" mb={6}>{t('artists')}</Heading>
           
           <Flex 
             direction={{ base: 'column', md: 'row' }} 
@@ -301,17 +303,22 @@ export default function Artists() {
     
           {isLoading || isFilterLoading ? (
             <Flex justify="center" py={10}>
-              <Text>Loading artists...</Text>
+              <Text>{t('loadingArtists')}</Text>
             </Flex>
           ) : currentPageArtists.length === 0 ? (
             <Box textAlign="center" py={10}>
-              <Text>No artists found with the selected filters</Text>
+              <Text>{t('noArtistsFound')}</Text>
             </Box>
           ) : (
             <>
               <Flex justify="space-between" mb={4} align="center">
                 <Text fontSize="sm" color="gray.600">
-                  Showing {(page - 1) * itemsPerPage + 1}-{Math.min(page * itemsPerPage, filteredArtists.length)} of {filteredArtists.length} artists
+                  {t('showingRange', {
+                    start: (page - 1) * itemsPerPage + 1,
+                    end: Math.min(page * itemsPerPage, filteredArtists.length),
+                    total: filteredArtists.length,
+                    item: t('artistItem'),
+                  })}
                 </Text>
               </Flex>
               

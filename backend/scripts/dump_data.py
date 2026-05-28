@@ -14,7 +14,7 @@ load_dotenv(dotenv_path=env_path)
 # Now import the database connection and other modules
 from ..app.database import SessionLocal
 from ..app.models import (
-    User, Genre, Artist, Album, Song,
+    User, GenreCategory, Genre, Artist, Album, Song,
     ArtistMeta, AlbumMeta, SongMeta,
     SongComment, ArtistComment, AlbumComment,
     artist_genre_link, album_genre_link, song_artist_link
@@ -30,6 +30,19 @@ def dump_data():
     try:
         data = {}
 
+        # Dump Genre Categories
+        print("Dumping genre categories...")
+        genre_categories = session.query(GenreCategory).all()
+        data['genre_categories'] = [
+            {
+                'id': category.id,
+                'name': category.name,
+                'info': category.info,
+                'info_zh': category.info_zh,
+                'info_en': category.info_en
+            } for category in genre_categories
+        ]
+
         # Dump Genres
         print("Dumping genres...")
         genres = session.query(Genre).all()
@@ -37,7 +50,10 @@ def dump_data():
             {
                 'id': genre.id,
                 'name': genre.name,
-                'info': genre.info
+                'info': genre.info,
+                'info_zh': genre.info_zh,
+                'info_en': genre.info_en,
+                'category_id': genre.category_id
             } for genre in genres
         ]
 

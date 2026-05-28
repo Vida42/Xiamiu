@@ -1,16 +1,39 @@
-from pydantic import BaseModel, Field, validator
-from typing import Optional, List, Dict
-from datetime import date
+import json
+from pydantic import BaseModel, Field, validator, field_validator
+from typing import Optional, List, Dict, Any, Union
+from datetime import date, datetime
 
 
 # Genre schemas
+class GenreCategoryBase(BaseModel):
+    name: str
+    info: Optional[str] = None
+    info_zh: Optional[str] = None
+    info_en: Optional[str] = None
+
+
+class GenreCategoryCreate(GenreCategoryBase):
+    id: int
+
+
+class GenreCategory(GenreCategoryBase):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 class GenreBase(BaseModel):
     name: str
     info: str
+    info_zh: Optional[str] = None
+    info_en: Optional[str] = None
+    category_id: int
 
 
 class GenreCreate(GenreBase):
-    pass
+    id: Optional[int] = None
 
 
 class Genre(GenreBase):
@@ -290,3 +313,120 @@ class AlbumRating(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+# ===== Recommendation schemas =====
+
+class NearestNeighbor(BaseModel):
+    albumId: Optional[Union[int, str]] = None
+    artistName: Optional[str] = None
+    albumName: Optional[str] = None
+    similarity: Optional[float] = None
+    ratingHistogram: Optional[Dict[str, int]] = None
+
+
+class QuickReactionIn(BaseModel):
+    reaction: str  # interested | skip | save
+
+
+class QuickReactionOut(BaseModel):
+    id: int
+    reaction: str
+    created: datetime
+    modified: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class FeedbackIn(BaseModel):
+    star: int = Field(..., ge=1, le=5)
+    song_impression: Optional[str] = None
+    recommendation_advice: Optional[str] = None
+
+
+class FeedbackOut(BaseModel):
+    id: int
+    star: int
+    song_impression: Optional[str] = None
+    recommendation_advice: Optional[str] = None
+    created: datetime
+    modified: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class RecommendationItemOut(BaseModel):
+    id: int
+    rank: int
+    album_id: str
+    artist_name: str
+    album_name: str
+    styles: List[str] = []
+    similarity_score: float
+    fit_score: Optional[float] = None
+    reason: Optional[str] = None
+    risk: Optional[str] = None
+    nearest_neighbors: List[NearestNeighbor] = []
+    play_count: Optional[int] = None
+    collects: Optional[int] = None
+    recommends: Optional[int] = None
+    quick_reaction: Optional[QuickReactionOut] = None
+    feedback: Optional[FeedbackOut] = None
+
+    model_config = {"from_attributes": True}
+
+    @field_validator("styles", mode="before")
+    @classmethod
+    def parse_styles(cls, v):
+        if v is None or v == "":
+            return []
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return []
+        return v
+
+    @field_validator("nearest_neighbors", mode="before")
+    @classmethod
+    def parse_neighbors(cls, v):
+        if v is None or v == "":
+            return []
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return []
+        return v
+
+
+class RecommendationDailyOut(BaseModel):
+    id: int
+    user_id: int
+    generated_at: datetime
+    generation_method: str
+    embedding_model: str
+    judge_model: str
+    top_n: int
+    taste_profile_id: int
+    taste_profile_text: str
+    items: List[RecommendationItemOut]
+
+    model_config = {"from_attributes": True}
+
+
+class RecommendationSummary(BaseModel):
+    id: int
+    generated_at: datetime
+    top_n: int
+    generation_method: str
+    embedding_model: str
+    judge_model: str
+    notes: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class RecommendationList(BaseModel):
+    count: int
+    items: List[RecommendationSummary]
