@@ -71,6 +71,10 @@ DB_HOST=localhost
 DB_PORT=
 DB_NAME=xiamiu
 
+# Optional. Used by backend/scripts/load_data.py when importing local seed
+# users that intentionally omit password. Never commit real passwords.
+XIAMIU_DEFAULT_USER_PASSWORD=
+
 # Anthropic API — NOT needed for the demo path. Only required if you re-run
 # the offline judge / taste-profile generators (backend/scripts/judge_*,
 # generate_taste_profile).
@@ -177,8 +181,9 @@ With the demo seed (path 5a), should print:
 - **Page load is $0** — all LLM and embedding work was paid once during the
   pipeline. The frontend only reads cached results.
 - **Recommendation demo user is hardcoded** (`user_id=1`) in
-  `backend/app/main.py`. The legacy login flow still exists for
-  music/comment pages.
+  `backend/app/main.py`. The top bar defaults to this Demo User when no one
+  is logged in; the legacy login flow still exists but is not the main demo
+  entry point.
 - **PostgreSQL is required at runtime** — the backend will not start without
   a reachable `xiamiu` database. This is the trade-off for using a real
   schema instead of file-only JSON.
@@ -273,8 +278,8 @@ Next.js frontend: /recommendations/daily page
 - **Catalog coverage**: built on the Xiami catalog (53k albums, frozen 2022),
   which has weak coverage of Western indie/alt-rock. ~35% match rate against
   the user's rating data. v1.1 plan is to swap to MusicBrainz.
-- **Single-user demo**: no auth, no multi-user data isolation, hardcoded
-  `user_id=1`.
+- **Single-user recommendation demo**: recommendation endpoints use hardcoded
+  `user_id=1`. The legacy auth flow still exists for music/comment pages.
 - **Recommendations skew Mandarin Pop** as a structural consequence of (a)
   the user's confidently-matched ratings being Jay Chou-heavy and (b) the
   catalog itself being Chinese-skewed.

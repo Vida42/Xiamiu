@@ -41,7 +41,8 @@ treat the **committed `demo_seed.json` as authoritative**, not the scripts.
 Reads `demo_seed.json` and inserts rows into Postgres. Skips any row whose
 PK already exists, so it's safe to re-run after a partial failure.
 The demo user's plaintext seed password is hashed before it is written to
-the database.
+the database. The committed demo credential is `demo` / `demo`; it exists
+only for local demo use.
 
 The loader has no `private_data/` dependency. A fresh `git clone` only
 needs Postgres + Python deps + alembic migrations + this seed to render

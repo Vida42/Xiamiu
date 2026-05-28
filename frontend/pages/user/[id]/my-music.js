@@ -35,6 +35,7 @@ export default function MyMusic() {
   const [artistComments, setArtistComments] = useState([]);
   const [error, setError] = useState(null);
   const { t, language } = useLanguage();
+  const demoUserId = 1;
 
   // Check if the logged-in user is viewing their own My Music page
   const isOwnProfile = currentUser && currentUser.id === parseInt(id);
@@ -43,14 +44,16 @@ export default function MyMusic() {
     // Don't do anything until authentication is checked
     if (authLoading) return;
 
-    // If not authenticated, redirect to login
-    if (!isAuthenticated) {
+    const isDemoProfile = id && parseInt(id) === demoUserId;
+
+    // If not authenticated, only the public demo music page is available.
+    if (!isAuthenticated && !isDemoProfile) {
       router.push('/login?returnUrl=' + encodeURIComponent(router.asPath));
       return;
     }
 
     // If user is trying to access someone else's My Music page
-    if (currentUser && id && parseInt(id) !== currentUser.id) {
+    if (isAuthenticated && currentUser && id && parseInt(id) !== currentUser.id && !isDemoProfile) {
       setError(t('cannotAccessOtherMusic'));
       return;
     }

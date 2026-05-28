@@ -8,6 +8,7 @@ import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 import { CommentForm, CommentItem, DeleteConfirmationDialog } from '../../components';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getLocalizedInfo, sanitizeHtmlInfo } from '../../utils/formatters';
 
 // Reusable SectionHeader component similar to the one in index.js
 const SectionHeader = ({ title }) => {
@@ -41,7 +42,7 @@ export default function ArtistDetail() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState('All');
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   // Collections data
   const [songsByStarRating, setSongsByStarRating] = useState({
@@ -57,12 +58,19 @@ export default function ArtistDetail() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const albumCategories = [
-    { value: 'All', label: '全部' },
-    { value: 'Studio', label: '录音室专辑' },
-    { value: 'Compilation', label: '精选集' },
-    { value: 'Live', label: '现场专辑' },
-    { value: 'EP', label: 'EP/单曲' }
+    { value: 'All', label: t('all'), aliases: [] },
+    { value: 'Studio', label: t('studioAlbum'), aliases: ['录音室专辑', 'Studio Album', 'Studio'] },
+    { value: 'Compilation', label: t('compilationAlbum'), aliases: ['精选集', '合集、杂锦', 'Compilation'] },
+    { value: 'Live', label: t('liveAlbum'), aliases: ['现场专辑', 'Live Album', 'Live'] },
+    { value: 'EP', label: t('epSingle'), aliases: ['EP、单曲', 'EP / Single', 'EP'] },
+    { value: 'Soundtrack', label: t('soundtrackAlbum'), aliases: ['原声带、影视音乐', 'Soundtrack'] },
   ];
+
+  const matchesAlbumCategory = (album, categoryValue) => {
+    if (categoryValue === 'All') return true;
+    const category = albumCategories.find(item => item.value === categoryValue);
+    return category?.aliases.includes(album.album_category) ?? false;
+  };
 
   const { isAuthenticated, user } = useAuth();
   const [refreshComments, setRefreshComments] = useState(false);
@@ -73,7 +81,7 @@ export default function ArtistDetail() {
 
   useEffect(() => {
     const fetchArtistData = async () => {
-      if (!id) return;
+      if (!router.isReady || !id) return;
       
       try {
         setIsLoading(true);
@@ -161,14 +169,14 @@ export default function ArtistDetail() {
     };
 
     fetchArtistData();
-  }, [id, refreshComments]);
+  }, [router.isReady, id, refreshComments]);
 
   // Filter albums based on selected category
   useEffect(() => {
     if (activeCategoryFilter === 'All') {
       setFilteredAlbums(albums);
     } else {
-      const filtered = albums.filter(album => album.album_category === activeCategoryFilter);
+      const filtered = albums.filter(album => matchesAlbumCategory(album, activeCategoryFilter));
       setFilteredAlbums(filtered);
     }
   }, [activeCategoryFilter, albums]);
@@ -184,7 +192,7 @@ export default function ArtistDetail() {
     
     // Apply category filter
     if (activeCategoryFilter !== 'All') {
-      sorted = sorted.filter(album => album.album_category === activeCategoryFilter);
+      sorted = sorted.filter(album => matchesAlbumCategory(album, activeCategoryFilter));
     }
     
     setFilteredAlbums(sorted);
@@ -373,7 +381,13 @@ export default function ArtistDetail() {
   };
 
   const renderContent = () => {
-    if (!id) return null;
+    if (!router.isReady || !id) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Text>{t('loadingArtistDetails')}</Text>
+        </Box>
+      );
+    }
 
     if (error) {
       return (
@@ -432,12 +446,21 @@ export default function ArtistDetail() {
                 {t('region')}: {artist.region}
               </Text>
               
-              {artistMeta && artistMeta.info && (
+              {artistMeta && getLocalizedInfo(artistMeta, language) && (
                 <Box mt={6} mb={6}>
                   <Text fontWeight="bold" size="md" mb={3}>{t('description')}</Text>
-                  <Text fontSize="md" lineHeight="1.7" px={3} py={4} borderRadius="md">
-                    {artistMeta.info}
-                  </Text>
+                  <Box
+                    fontSize="md"
+                    lineHeight="1.7"
+                    px={3}
+                    py={4}
+                    borderRadius="md"
+                    sx={{
+                      'div, p': { mb: 2 },
+                      strong: { fontWeight: '700' },
+                    }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlInfo(getLocalizedInfo(artistMeta, language)) }}
+                  />
                 </Box>
               )}
               

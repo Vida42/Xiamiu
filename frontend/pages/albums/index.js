@@ -227,7 +227,7 @@ export default function Albums() {
           {page > 1 && (
             <Box as="li">
               <Link onClick={() => handlePageChange(page - 1)}>
-                上一页
+                {t('previous')}
               </Link>
             </Box>
           )}
@@ -245,7 +245,7 @@ export default function Albums() {
           {page < totalPages && (
             <Box as="li">
               <Link onClick={() => handlePageChange(page + 1)}>
-                下一页
+                {t('next')}
               </Link>
             </Box>
           )}

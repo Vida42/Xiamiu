@@ -26,7 +26,7 @@ class GenreCategory(GenreCategoryBase):
 
 class GenreBase(BaseModel):
     name: str
-    info: str
+    info: Optional[str] = None
     info_zh: Optional[str] = None
     info_en: Optional[str] = None
     category_id: int
@@ -66,7 +66,7 @@ class Artist(ArtistBase):
 class AlbumBase(BaseModel):
     name: str
     album_lan: str
-    release_date: date
+    release_date: Optional[date] = None
     album_category: str
     record_label: str
     listen_date: Optional[date] = None

@@ -46,7 +46,7 @@ export default function SongDetail() {
 
   useEffect(() => {
     const fetchSongData = async () => {
-      if (!id) return;
+      if (!router.isReady || !id) return;
       
       try {
         setIsLoading(true);
@@ -130,7 +130,7 @@ export default function SongDetail() {
     };
 
     fetchSongData();
-  }, [id]);
+  }, [router.isReady, id]);
 
   const handleCommentSubmit = async (comment) => {
     try {
@@ -194,7 +194,13 @@ export default function SongDetail() {
   };
 
   const renderContent = () => {
-    if (!id) return null;
+    if (!router.isReady || !id) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Text>{t('loadingSongDetails')}</Text>
+        </Box>
+      );
+    }
 
     if (error) {
       return (

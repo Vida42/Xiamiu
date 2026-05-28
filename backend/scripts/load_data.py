@@ -8,9 +8,12 @@ from sqlalchemy import insert
 # Find the .env file - It should be in the backend directory
 script_path = Path(__file__)
 backend_dir = script_path.parent.parent  # Go up two levels: scripts/ -> backend/
+repo_dir = backend_dir.parent
 env_path = backend_dir / '.env'
+root_env_path = repo_dir / '.env'
 
 # Load the environment variables
+load_dotenv(dotenv_path=root_env_path)
 load_dotenv(dotenv_path=env_path)
 
 # Now import the database connection and other modules

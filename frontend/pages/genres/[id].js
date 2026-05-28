@@ -6,6 +6,7 @@ import { api } from '../../utils/api';
 import { ArtistCard, AlbumCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getLocalizedInfo, sanitizeHtmlInfo } from '../../utils/formatters';
 
 export default function GenreDetail() {
   const router = useRouter();
@@ -16,11 +17,11 @@ export default function GenreDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const fetchGenreData = async () => {
-      if (!id) return;
+      if (!router.isReady || !id) return;
       
       try {
         setIsLoading(true);
@@ -56,10 +57,16 @@ export default function GenreDetail() {
     };
 
     fetchGenreData();
-  }, [id]);
+  }, [router.isReady, id]);
 
   const renderContent = () => {
-    if (!id) return null;
+    if (!router.isReady || !id) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Text>{t('loadingGenreDetails')}</Text>
+        </Box>
+      );
+    }
 
     if (error) {
       return (
@@ -97,7 +104,15 @@ export default function GenreDetail() {
         <Box mb={8}>
           <Box p={6} borderRadius="lg">
             <Heading size="lg" mb={4} color="gray.800">{genre.name}</Heading>
-            <Text fontSize="md" mb={6}>{genre.info}</Text>
+            <Box
+              fontSize="md"
+              mb={6}
+              sx={{
+                'div, p': { mb: 2 },
+                strong: { fontWeight: '700' },
+              }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtmlInfo(getLocalizedInfo(genre, language)) }}
+            />
             
             <Divider my={4} borderColor="gray.200" />
           </Box>

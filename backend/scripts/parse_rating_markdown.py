@@ -23,7 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RATINGS_DIR = REPO_ROOT / "private_data" / "00_source" / "ratings"
 DEFAULT_INDEX_DIR = REPO_ROOT / "private_data" / "10_intermediate" / "catalog_indexes"
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "private_data" / "10_intermediate" / "structured_ratings" / "sample_ratings.json"
-DEFAULT_REPORT_PATH = REPO_ROOT / "local_reports" / "ai_recommendation_demo" / "ratings_match_day4.md"
+DEFAULT_REPORT_PATH = REPO_ROOT / "local_reports" / "ratings_match_day4.md"
 
 
 @dataclass
