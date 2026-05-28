@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function MyMusicRedirect() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const demoUserId = 1;
 
   // Redirect based on authentication status
   useEffect(() => {
@@ -15,8 +16,8 @@ export default function MyMusicRedirect() {
         // Redirect to the user's personal my-music page
         router.replace(`/user/${user.id}/my-music`);
       } else {
-        // Redirect to login with return URL
-        router.replace(`/login?returnUrl=${encodeURIComponent(router.pathname)}`);
+        // Demo mode defaults to the public demo user.
+        router.replace(`/user/${demoUserId}/my-music`);
       }
     }
   }, [isLoading, isAuthenticated, user, router]);
@@ -30,4 +31,4 @@ export default function MyMusicRedirect() {
       </Container>
     </XiamiuLayout>
   );
-} 
+}

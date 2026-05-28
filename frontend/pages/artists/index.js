@@ -21,11 +21,11 @@ export default function Artists() {
   
   const artistFilters = [
     { id: 'popular', label: t('popular') },
-    { id: 'China', label: '中国' },
-    { id: 'United States of America', label: '美国' },
-    { id: 'United Kingdom', label: '英国' },
-    { id: 'Japan', label: '日本' },
-    { id: 'Korea', label: '韩国' },
+    { id: 'China', label: t('china') },
+    { id: 'United States of America', label: t('unitedStates') },
+    { id: 'United Kingdom', label: t('unitedKingdom') },
+    { id: 'Japan', label: t('japanese') },
+    { id: 'Korea', label: t('korean') },
   ];
 
   useEffect(() => {
@@ -221,7 +221,7 @@ export default function Artists() {
           {page > 1 && (
             <Box as="li">
               <Link onClick={() => handlePageChange(page - 1)}>
-                上一页
+                {t('previous')}
               </Link>
             </Box>
           )}
@@ -239,7 +239,7 @@ export default function Artists() {
           {page < totalPages && (
             <Box as="li">
               <Link onClick={() => handlePageChange(page + 1)}>
-                下一页
+                {t('next')}
               </Link>
             </Box>
           )}

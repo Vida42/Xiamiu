@@ -184,7 +184,7 @@ export const api = {
   // Search
   search: async (query) => {
     try {
-      const response = await apiClient.get(`/search/?query=${query}`);
+      const response = await apiClient.get(`/search/?query=${encodeURIComponent(query)}`);
       return response.data;
     } catch (error) {
       console.error("Error searching:", error);
@@ -204,7 +204,7 @@ export const api = {
   },
   getArtistsByRegion: async (region) => {
     try {
-      const response = await apiClient.get(`/artists/region/${region}`);
+      const response = await apiClient.get(`/artists/region/${encodeURIComponent(region)}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching artists by region ${region}:`, error);
@@ -260,7 +260,7 @@ export const api = {
   },
   getAlbumsByLanguage: async (language) => {
     try {
-      const response = await apiClient.get(`/albums/language/${language}`);
+      const response = await apiClient.get(`/albums/language/${encodeURIComponent(language)}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching albums by language ${language}:`, error);

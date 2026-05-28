@@ -62,6 +62,7 @@ const XiamiuLayout = ({ children }) => {
   const [searchType, setSearchType] = useState('general');
   const { user, isAuthenticated, logout } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
+  const demoUserId = 1;
 
   // Handle search functionality
   const handleSearch = () => {
@@ -78,14 +79,6 @@ const XiamiuLayout = ({ children }) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
-    }
-  };
-
-  // Handle my music link
-  const handleMyMusicClick = (e) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      router.push('/login');
     }
   };
 
@@ -137,9 +130,8 @@ const XiamiuLayout = ({ children }) => {
                 {t('discoverMusic')}
               </NavLink>
               <NavLink 
-                href={isAuthenticated ? `/user/${user?.id}/my-music` : "/my-music"} 
+                href={isAuthenticated ? `/user/${user?.id}/my-music` : `/user/${demoUserId}/my-music`}
                 isActive={router.pathname === '/my-music' || router.pathname.includes('/user/')}
-                onClick={handleMyMusicClick}
               >
                 {t('myMusic')}
               </NavLink>
@@ -229,28 +221,16 @@ const XiamiuLayout = ({ children }) => {
                   </Box>
                 </>
               ) : (
-                <>
-                  <Box
-                    as={NextLink}
-                    href="/login"
-                    color="white"
-                    _hover={{ textDecoration: 'underline' }}
-                    fontSize="14px"
-                    fontWeight="medium"
-                  >
-                    {t('login')}
-                  </Box>
-                  <Box
-                    as="button"
-                    color="white"
-                    _hover={{ textDecoration: 'underline' }}
-                    fontSize="14px"
-                    fontWeight="medium"
-                    disabled={true}
-                  >
-                    {t('register')}
-                  </Box>
-                </>
+                <Box
+                  as={NextLink}
+                  href={`/user/${demoUserId}/my-music`}
+                  color="white"
+                  _hover={{ textDecoration: 'underline' }}
+                  fontSize="14px"
+                  fontWeight="medium"
+                >
+                  {t('demoUser')}
+                </Box>
               )}
             </Flex>
           </Flex>

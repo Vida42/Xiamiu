@@ -64,6 +64,23 @@ const LanguageFilter = ({ languages, selectedLang, onSelect }) => {
   );
 };
 
+const languageAliases = {
+  chinese: ['国语', '华语', 'Chinese', 'Mandarin'],
+  western: ['英语', '欧美', 'English', 'Western'],
+  japanese: ['日语', 'Japanese'],
+  korean: ['韩语', 'Korean'],
+};
+
+const albumMatchesLanguage = (album, selectedLang) => {
+  if (selectedLang === 'all') return true;
+  return languageAliases[selectedLang]?.includes((album.album_lan || '').trim()) ?? false;
+};
+
+const releaseTime = (album) => {
+  const time = new Date(album.release_date).getTime();
+  return Number.isNaN(time) ? 0 : time;
+};
+
 export default function Home() {
   const { t } = useLanguage();
   const [featuredArtists, setFeaturedArtists] = useState([]);
@@ -97,9 +114,7 @@ export default function Home() {
         setFeaturedArtists(artistsResponse.slice(0, 4));
         
         // Sort albums by release date (newest first)
-        const sortedAlbums = [...albumsResponse].sort(
-          (a, b) => new Date(b.release_date) - new Date(a.release_date)
-        );
+        const sortedAlbums = [...albumsResponse].sort((a, b) => releaseTime(b) - releaseTime(a));
         setNewAlbums(sortedAlbums.slice(0, 8));
         setFilteredAlbums(sortedAlbums.slice(0, 8));
         
@@ -124,19 +139,7 @@ export default function Home() {
 
   // Filter albums based on selected language
   useEffect(() => {
-    if (selectedLang === 'all') {
-      setFilteredAlbums(newAlbums);
-    } else {
-      // This is a simplified example - in a real app you'd have language info in the album data
-      // For now, we'll just filter randomly to demonstrate the functionality
-      const filtered = newAlbums.filter((_, index) => {
-        // For demo purposes: assign each album to a language group based on its index
-        const languages = ['chinese', 'western', 'japanese', 'korean'];
-        const albumLang = languages[index % languages.length];
-        return albumLang === selectedLang;
-      });
-      setFilteredAlbums(filtered.length ? filtered : [newAlbums[0]]); // Ensure at least one result
-    }
+    setFilteredAlbums(newAlbums.filter(album => albumMatchesLanguage(album, selectedLang)));
   }, [selectedLang, newAlbums]);
 
   if (error) {

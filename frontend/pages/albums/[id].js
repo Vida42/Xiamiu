@@ -7,6 +7,7 @@ import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 import { StarRating, CommentForm, SongRatingDialog, InteractiveStarRating, CommentItem, DeleteConfirmationDialog } from '../../components';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getLocalizedInfo, sanitizeHtmlInfo } from '../../utils/formatters';
 
 // SectionHeader component for consistent styling
 const SectionHeader = ({ title }) => {
@@ -86,7 +87,7 @@ export default function AlbumDetail() {
 
   useEffect(() => {
     const fetchAlbumData = async () => {
-      if (!id) return;
+      if (!router.isReady || !id) return;
       
       try {
         setIsLoading(true);
@@ -188,7 +189,7 @@ export default function AlbumDetail() {
     };
 
     fetchAlbumData();
-  }, [id, refreshData]);
+  }, [router.isReady, id, refreshData]);
 
   // Handler for submitting a new album comment with rating
   const handleAlbumCommentSubmit = async (comment, rating) => {
@@ -343,7 +344,13 @@ export default function AlbumDetail() {
   };
 
   const renderContent = () => {
-    if (!id) return null;
+    if (!router.isReady || !id) {
+      return (
+        <Box textAlign="center" py={10}>
+          <Text>{t('loadingAlbumDetails')}</Text>
+        </Box>
+      );
+    }
 
     if (error) {
       return (
@@ -447,12 +454,22 @@ export default function AlbumDetail() {
                 </VStack>
               </Box>
               
-              {albumMeta && albumMeta.info && (
+              {albumMeta && getLocalizedInfo(albumMeta, language) && (
                 <Box mt={6} mb={4}>
                   <Heading as="h3" size="md" mb={3}>{t('description')}</Heading>
-                  <Text fontSize="md" lineHeight="1.7" px={3} py={4} bg="gray.50" borderRadius="md">
-                    {albumMeta.info}
-                  </Text>
+                  <Box
+                    fontSize="md"
+                    lineHeight="1.7"
+                    px={3}
+                    py={4}
+                    bg="gray.50"
+                    borderRadius="md"
+                    sx={{
+                      'div, p': { mb: 2 },
+                      strong: { fontWeight: '700' },
+                    }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlInfo(getLocalizedInfo(albumMeta, language)) }}
+                  />
                 </Box>
               )}
               

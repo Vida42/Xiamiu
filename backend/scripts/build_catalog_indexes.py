@@ -25,7 +25,7 @@ DEFAULT_CATALOG_DIR = Path(
     "/Users/mugen/Project/xiamiu_resources/2025/formatted results"
 )
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "private_data" / "10_intermediate" / "catalog_indexes"
-DEFAULT_REPORT_PATH = REPO_ROOT / "local_reports" / "ai_recommendation_demo" / "catalog_index_day3.md"
+DEFAULT_REPORT_PATH = REPO_ROOT / "local_reports" / "catalog_index_day3.md"
 
 
 def normalize_text(value: Any) -> str:

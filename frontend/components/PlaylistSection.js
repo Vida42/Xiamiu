@@ -75,12 +75,12 @@ const PlaylistSection = () => {
         mb={6}
       >
         <Flex gap={3} flexWrap="wrap" justifyContent="center">
-          <PlaylistCategory title="我的订阅" active={true} />
-          <PlaylistCategory title="热门动态" />
-          <PlaylistCategory title="音乐人企划" />
-          <PlaylistCategory title="生日" />
-          <PlaylistCategory title="声优" />
-          <PlaylistCategory title="新世纪" />
+          <PlaylistCategory title={t('mySubscriptions')} active={true} />
+          <PlaylistCategory title={t('trendingUpdates')} />
+          <PlaylistCategory title={t('musicianProjects')} />
+          <PlaylistCategory title={t('birthday')} />
+          <PlaylistCategory title={t('voiceActors')} />
+          <PlaylistCategory title={t('newCentury')} />
         </Flex>
       </Flex>
       

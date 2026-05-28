@@ -64,7 +64,19 @@ def get_artist_by_name(db: Session, name: str):
 
 
 def search_artists_by_name(db: Session, name_query: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Artist).filter(models.Artist.name.contains(name_query)).offset(skip).limit(limit).all()
+    pattern = f"%{name_query}%"
+    prefix = f"{name_query}%"
+    return (
+        db.query(models.Artist)
+        .filter(models.Artist.name.ilike(pattern))
+        .order_by(
+            models.Artist.name.ilike(prefix).desc(),
+            models.Artist.name,
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_artists(db: Session, skip: int = 0, limit: int = 100):
@@ -79,8 +91,30 @@ def create_artist(db: Session, artist: schemas.ArtistCreate):
     return db_artist
 
 
+ARTIST_REGION_ALIASES = {
+    "China": ["China", "China 中国大陆", "中国大陆 China", "中国大陆"],
+    "中国": ["中国", "China", "China 中国大陆", "中国大陆 China", "中国大陆"],
+    "United States of America": ["United States of America", "United States of America 美国", "美国"],
+    "United States": ["United States", "United States of America", "United States of America 美国", "美国"],
+    "美国": ["美国", "United States of America", "United States of America 美国"],
+    "United Kingdom": ["United Kingdom", "United Kingdom 英国", "英国"],
+    "英国": ["英国", "United Kingdom", "United Kingdom 英国"],
+    "Japan": ["Japan", "Japan 日本", "日本"],
+    "日本": ["日本", "Japan", "Japan 日本"],
+    "Korea": ["Korea", "Korea 韩国", "韩国"],
+    "韩国": ["韩国", "Korea", "Korea 韩国"],
+}
+
+
 def get_artists_by_region(db: Session, region: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Artist).filter(models.Artist.region == region).offset(skip).limit(limit).all()
+    region_values = ARTIST_REGION_ALIASES.get(region, [region])
+    return (
+        db.query(models.Artist)
+        .filter(models.Artist.region.in_(region_values))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 # Album operations
@@ -93,7 +127,20 @@ def get_album_by_name(db: Session, name: str):
 
 
 def search_albums_by_name(db: Session, name_query: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Album).filter(models.Album.name.contains(name_query)).offset(skip).limit(limit).all()
+    pattern = f"%{name_query}%"
+    prefix = f"{name_query}%"
+    return (
+        db.query(models.Album)
+        .filter(models.Album.name.ilike(pattern))
+        .order_by(
+            models.Album.name.ilike(prefix).desc(),
+            models.Album.release_date.desc().nullslast(),
+            models.Album.name,
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_albums(db: Session, skip: int = 0, limit: int = 100):
@@ -121,8 +168,31 @@ def create_album(db: Session, album: schemas.AlbumCreate):
     return db_album
 
 
+ALBUM_LANGUAGE_ALIASES = {
+    "Mandarin": ["Mandarin", "国语", "华语"],
+    "Chinese": ["Chinese", "国语", "华语"],
+    "English": ["English", "英语", "欧美"],
+    "Western": ["Western", "English", "英语", "欧美"],
+    "Japanese": ["Japanese", "日语"],
+    "Korean": ["Korean", "韩语"],
+    "国语": ["国语", "Mandarin", "Chinese"],
+    "华语": ["华语", "国语", "Mandarin", "Chinese"],
+    "英语": ["英语", "English", "Western"],
+    "欧美": ["欧美", "English", "Western"],
+    "日语": ["日语", "Japanese"],
+    "韩语": ["韩语", "Korean"],
+}
+
+
 def get_albums_by_language(db: Session, album_lan: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Album).filter(models.Album.album_lan == album_lan).offset(skip).limit(limit).all()
+    language_values = ALBUM_LANGUAGE_ALIASES.get(album_lan, [album_lan])
+    return (
+        db.query(models.Album)
+        .filter(models.Album.album_lan.in_(language_values))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 # Song operations
@@ -135,7 +205,19 @@ def get_song_by_name(db: Session, name: str):
 
 
 def search_songs_by_name(db: Session, name_query: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Song).filter(models.Song.name.contains(name_query)).offset(skip).limit(limit).all()
+    pattern = f"%{name_query}%"
+    prefix = f"{name_query}%"
+    return (
+        db.query(models.Song)
+        .filter(models.Song.name.ilike(pattern))
+        .order_by(
+            models.Song.name.ilike(prefix).desc(),
+            models.Song.name,
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_songs(db: Session, skip: int = 0, limit: int = 100):
@@ -316,9 +398,13 @@ def get_album_comments(db: Session, album_id: str, skip: int = 0, limit: int = 1
 
 # Search operations
 def search_all(db: Session, query: str):
-    artists = search_artists_by_name(db, query)
-    albums = search_albums_by_name(db, query)
-    songs = search_songs_by_name(db, query)
+    normalized_query = query.strip()
+    if not normalized_query:
+        return {"artists": [], "albums": [], "songs": []}
+
+    artists = search_artists_by_name(db, normalized_query)
+    albums = search_albums_by_name(db, normalized_query)
+    songs = search_songs_by_name(db, normalized_query)
 
     return {
         "artists": artists,

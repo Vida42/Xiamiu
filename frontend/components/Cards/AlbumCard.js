@@ -22,7 +22,9 @@ const AlbumCard = ({ album }) => {
   }, [album.album_id]);
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'N/A';
     return date.toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US');
   };
 

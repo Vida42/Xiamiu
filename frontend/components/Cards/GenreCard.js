@@ -1,8 +1,11 @@
 import {Box, Heading, LinkBox, LinkOverlay, Text} from "@chakra-ui/react";
 import NextLink from "next/link";
-import AlbumCard from "./AlbumCard";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { formatHtmlInfo, getLocalizedInfo } from "../../utils/formatters";
 
 const GenreCard = ({ genre }) => {
+  const { language } = useLanguage();
+
   return (
     <LinkBox as="article">
       <Box
@@ -18,7 +21,7 @@ const GenreCard = ({ genre }) => {
             <Heading size="sm" mb={1}>{genre.name}</Heading>
           </LinkOverlay>
         </NextLink>
-        <Text fontSize="xs" noOfLines={2}>{genre.info}</Text>
+        <Text fontSize="xs" noOfLines={2}>{formatHtmlInfo(getLocalizedInfo(genre, language))}</Text>
       </Box>
     </LinkBox>
   );

@@ -55,7 +55,7 @@ class Genre(Base):
     __tablename__ = 'genres'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), index=True)
-    info: Mapped[str] = mapped_column(Text)
+    info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     info_zh: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     info_en: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey('genre_categories.id'), nullable=False, index=True)
@@ -69,9 +69,9 @@ class Genre(Base):
 class Artist(Base):
     __tablename__ = 'artists'
     artist_id: Mapped[str] = mapped_column(String(20), primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), index=True)
+    name: Mapped[str] = mapped_column(String(255), index=True)
     region: Mapped[str] = mapped_column(String(50))
-    
+
     # Relationships
     genres = relationship("Genre", secondary=artist_genre_link, back_populates="artists")
     albums = relationship("Album", back_populates="artist")
@@ -86,9 +86,9 @@ class Album(Base):
     name: Mapped[str] = mapped_column(String(255))
     artist_id: Mapped[str] = mapped_column(String(20), ForeignKey('artists.artist_id'))
     album_lan: Mapped[str] = mapped_column(String(10))
-    release_date: Mapped[date] = mapped_column(Date)
+    release_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     album_category: Mapped[str] = mapped_column(String(20))
-    record_label: Mapped[str] = mapped_column(String(50))
+    record_label: Mapped[str] = mapped_column(String(255))
     listen_date: Mapped[date] = mapped_column(Date, nullable=True)
     
     # Relationships
@@ -116,7 +116,7 @@ class Song(Base):
 class SongMeta(Base):
     __tablename__ = 'song_meta'
     song_id: Mapped[str] = mapped_column(String(20), ForeignKey('songs.song_id'), primary_key=True)
-    lyrics: Mapped[str] = mapped_column(Text)
+    lyrics: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Relationships
     song = relationship("Song", back_populates="meta")
