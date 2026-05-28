@@ -1,12 +1,10 @@
 import { Box, Image, Text, LinkBox, LinkOverlay, Flex } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { StarRating } from '../../components';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const CollectionCard = ({ artistId, starRating, songCount }) => {
-  // Format the collection title based on star rating
-  const formatTitle = (stars) => {
-    return `${stars} Star Collection`;
-  };
+  const { t } = useLanguage();
 
   return (
     <LinkBox
@@ -34,7 +32,7 @@ const CollectionCard = ({ artistId, starRating, songCount }) => {
           <LinkOverlay>
             <Image
               src="/album-placeholder.svg"
-              alt={`${starRating} Star Collection`}
+              alt={t('starCollection', { stars: starRating })}
               w="100%"
               h="140px"
               objectFit="cover"
@@ -63,7 +61,7 @@ const CollectionCard = ({ artistId, starRating, songCount }) => {
           textAlign="center"
           fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif"
         >
-          {formatTitle(starRating)}
+          {t('starCollection', { stars: starRating })}
         </Text>
         {songCount > 0 && (
           <Text 
@@ -72,7 +70,7 @@ const CollectionCard = ({ artistId, starRating, songCount }) => {
             textAlign="center"
             fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif"
           >
-            {songCount} songs
+            {t('songCount', { count: songCount })}
           </Text>
         )}
       </Box>

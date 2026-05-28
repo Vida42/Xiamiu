@@ -1,4 +1,5 @@
 import { Box, Text, Flex, Image, Button, HStack } from '@chakra-ui/react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CommentItem = ({ 
   comment, 
@@ -7,6 +8,7 @@ const CommentItem = ({
   formatDate = (date) => new Date(date).toLocaleDateString(),
   variant = "album" // Can be "album", "song", or "artist"
 }) => {
+  const { t } = useLanguage();
   // Function to render star rating for song comments
   const renderStarRating = (rating) => {
     if (!rating) return null;
@@ -33,7 +35,7 @@ const CommentItem = ({
           <Flex justify="space-between" align="center" mb={1}>
             <Flex align="baseline">
               <Text fontWeight="bold" mr={1}>
-                {comment.user_name || (comment.user_id && `User #${comment.user_id}`) || 'Anonymous User'}:
+                {comment.user_name || (comment.user_id && t('userNumber', { id: comment.user_id })) || t('anonymousUser')}:
               </Text>
               <Text>{comment.comment}</Text>
             </Flex>
@@ -53,7 +55,7 @@ const CommentItem = ({
           <Flex justify="space-between" fontSize="sm" color="gray.500" mt={2}>
             <Text>{formatDate(comment.created)}</Text>
             <Flex align="center" gap={2}>
-              <Text>{comment.num_like} likes</Text>
+              <Text>{t('likes', { count: comment.num_like })}</Text>
               {currentUser && comment.user_id === currentUser.id && (
                 <Button
                   size="xs"
@@ -67,7 +69,7 @@ const CommentItem = ({
                   lineHeight="1"
                   py={0}
                 >
-                  Delete
+                  {t('delete')}
                 </Button>
               )}
             </Flex>

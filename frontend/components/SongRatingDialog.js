@@ -19,6 +19,7 @@ import {
   HStack
 } from '@chakra-ui/react';
 import { FaStar } from 'react-icons/fa';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SongRatingDialog = ({ 
   isOpen, 
@@ -27,6 +28,7 @@ const SongRatingDialog = ({
   initialRating = 0, 
   onSubmit 
 }) => {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(initialRating);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,7 +53,7 @@ const SongRatingDialog = ({
       await onSubmit(rating, comment);
     } catch (error) {
       console.error('Error submitting song rating:', error);
-      setError(error.message || 'Failed to submit rating. Please try again.');
+      setError(error.message || t('submitFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +63,7 @@ const SongRatingDialog = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rate "{songName}"</ModalHeader>
+        <ModalHeader>{t('rateSong', { songName })}</ModalHeader>
         <ModalCloseButton />
         
         <ModalBody>
@@ -73,7 +75,7 @@ const SongRatingDialog = ({
           )}
           
           <FormControl mb={4}>
-            <FormLabel>Your Rating</FormLabel>
+            <FormLabel>{t('yourRating')}</FormLabel>
             <Flex justify="center" mb={2}>
               <HStack spacing={2}>
                 {[1, 2, 3, 4, 5].map((starValue) => (
@@ -94,12 +96,12 @@ const SongRatingDialog = ({
               </HStack>
             </Flex>
             <Text textAlign="center" fontWeight="medium">
-              {rating} {rating === 1 ? 'Star' : 'Stars'}
+              {t('starCount', { count: rating })}
             </Text>
           </FormControl>
           
           <FormControl>
-            <FormLabel>Your Comment (Optional)</FormLabel>
+            <FormLabel>{t('yourCommentOptional')}</FormLabel>
             <Box position="relative">
               <Textarea
                 value={comment}
@@ -108,7 +110,7 @@ const SongRatingDialog = ({
                     setComment(e.target.value);
                   }
                 }}
-                placeholder="Write your thoughts about this song..."
+                placeholder={t('songThoughtsPlaceholder')}
                 rows={4}
                 resize="vertical"
               />
@@ -127,15 +129,15 @@ const SongRatingDialog = ({
 
         <ModalFooter>
           <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button 
             colorScheme="orange"
             onClick={handleSubmit}
             isLoading={isSubmitting}
-            loadingText="Saving..."
+            loadingText={t('saving')}
           >
-            Save
+            {t('save')}
           </Button>
         </ModalFooter>
       </ModalContent>

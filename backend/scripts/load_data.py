@@ -16,11 +16,12 @@ load_dotenv(dotenv_path=env_path)
 # Now import the database connection and other modules
 from ..app.database import SessionLocal
 from ..app.models import (  # adjust based on your actual model locations
-    User, Genre, Artist, Album, Song,
+    User, GenreCategory, Genre, Artist, Album, Song,
     ArtistMeta, AlbumMeta, SongMeta,
     ArtistComment, AlbumComment, SongComment,
     artist_genre_link, album_genre_link, song_artist_link
 )
+from ..app.utils import get_password_hash
 
 
 def load_data():
@@ -38,7 +39,13 @@ def load_data():
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Step 1: Load Genres (they have no dependencies)
+        # Step 1: Load Genre Categories and Genres
+        print("Loading genre categories...")
+        for category in data.get("genre_categories", []):
+            obj = GenreCategory(**category)
+            session.merge(obj)
+        session.commit()
+
         print("Loading genres...")
         for genre in data.get("genres", []):
             obj = Genre(**genre)
@@ -74,7 +81,15 @@ def load_data():
 
         # Step 5: Load Users
         print("Loading users...")
+        default_password = os.getenv("XIAMIU_DEFAULT_USER_PASSWORD")
         for user in data.get("users", []):
+            plain_password = user.get("password") or default_password
+            if not plain_password:
+                raise ValueError(
+                    "Missing password for imported user. Set users[].password "
+                    "or XIAMIU_DEFAULT_USER_PASSWORD in .env."
+                )
+            user = {**user, "password": get_password_hash(plain_password)}
             obj = User(**user)
             session.merge(obj)
         session.commit()

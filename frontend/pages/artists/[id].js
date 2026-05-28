@@ -7,6 +7,7 @@ import { AlbumCard, CollectionCard } from '../../components/Cards';
 import XiamiuLayout from '../../components/Layout/XiamiuLayout';
 import { CommentForm, CommentItem, DeleteConfirmationDialog } from '../../components';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // Reusable SectionHeader component similar to the one in index.js
 const SectionHeader = ({ title }) => {
@@ -40,6 +41,7 @@ export default function ArtistDetail() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState('All');
+  const { t } = useLanguage();
   
   // Collections data
   const [songsByStarRating, setSongsByStarRating] = useState({
@@ -152,7 +154,7 @@ export default function ArtistDetail() {
         
       } catch (err) {
         console.error('Error fetching artist data:', err);
-        setError('Failed to load artist details. Please try again later.');
+        setError(t('failedLoadArtistDetails'));
       } finally {
         setIsLoading(false);
       }
@@ -248,10 +250,10 @@ export default function ArtistDetail() {
           colorScheme="orange"
           variant="outline"
         >
-          Previous
+          {t('previous')}
         </Button>
         <Text alignSelf="center" fontSize="sm">
-          Page {currentPage} of {totalPages}
+          {t('pageOf', { page: currentPage, total: totalPages })}
         </Text>
         <Button 
           size="sm" 
@@ -260,7 +262,7 @@ export default function ArtistDetail() {
           colorScheme="orange"
           variant="outline"
         >
-          Next
+          {t('next')}
         </Button>
       </Flex>
     );
@@ -274,8 +276,8 @@ export default function ArtistDetail() {
       
       // Show success toast
       toast({
-        title: "Comment submitted",
-        description: "Your comment has been added successfully.",
+        title: t('commentSubmitted'),
+        description: t('commentAddedDescription'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -286,8 +288,8 @@ export default function ArtistDetail() {
       
       // Show error toast with the error message
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit your comment. Please try again.",
+        title: t('error'),
+        description: error.message || t('submitFailed'),
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -306,7 +308,7 @@ export default function ArtistDetail() {
       // Update the local state to remove the deleted comment
       setComments(comments.filter(comment => comment.id !== commentToDelete.id));
       toast({
-        title: "Comment deleted",
+        title: t('commentDeleted'),
         status: "success",
         duration: 3000,
         isClosable: true,
@@ -314,8 +316,8 @@ export default function ArtistDetail() {
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete comment. Please try again.",
+        title: t('error'),
+        description: t('failedDeleteComment'),
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -330,7 +332,7 @@ export default function ArtistDetail() {
   const renderComments = () => {
     return (
       <Box my={8}>
-        <SectionHeader title="Comments" />
+        <SectionHeader title={t('comments')} />
         
         {isAuthenticated && (
           <Box mb={6} p={4} bg="gray.50" borderRadius="md">
@@ -338,13 +340,13 @@ export default function ArtistDetail() {
               onSubmit={handleCommentSubmit}
               showRating={false}
               maxChars={200}
-              placeholder="Share your thoughts about this artist (200 characters max)"
+              placeholder={t('shareArtistThoughts')}
             />
           </Box>
         )}
         
         {comments.length === 0 ? (
-          <Text py={4}>No comments yet. Be the first to comment!</Text>
+          <Text py={4}>{t('noCommentsYet')}</Text>
         ) : (
           <VStack spacing={4} align="stretch">
             {comments.map((comment, index) => (
@@ -376,7 +378,7 @@ export default function ArtistDetail() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Error</Heading>
+          <Heading mb={4}>{t('error')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -385,7 +387,7 @@ export default function ArtistDetail() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Text>Loading artist details...</Text>
+          <Text>{t('loadingArtistDetails')}</Text>
         </Box>
       );
     }
@@ -393,11 +395,11 @@ export default function ArtistDetail() {
     if (!artist) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Artist Not Found</Heading>
-          <Text>The artist you're looking for doesn't exist.</Text>
+          <Heading mb={4}>{t('artistNotFound')}</Heading>
+          <Text>{t('artistNotFoundHelp')}</Text>
           <NextLink href="/artists" passHref legacyBehavior>
             <Link color="blue.500" mt={4} display="inline-block">
-              Back to Artists
+              {t('backToArtists')}
             </Link>
           </NextLink>
         </Box>
@@ -427,12 +429,12 @@ export default function ArtistDetail() {
             <Box>
               <Heading size="md" mb={4}>{artist.name}</Heading>
               <Text fontSize="md" color="gray.600" mb={4}>
-                Region: {artist.region}
+                {t('region')}: {artist.region}
               </Text>
               
               {artistMeta && artistMeta.info && (
                 <Box mt={6} mb={6}>
-                  <Text fontWeight="bold" size="md" mb={3}>Description</Text>
+                  <Text fontWeight="bold" size="md" mb={3}>{t('description')}</Text>
                   <Text fontSize="md" lineHeight="1.7" px={3} py={4} borderRadius="md">
                     {artistMeta.info}
                   </Text>
@@ -446,7 +448,7 @@ export default function ArtistDetail() {
         
         {/* Albums section with SectionHeader */}
         <Box mt={12}>
-          <SectionHeader title={`${artist.name} Discography (${albums.length})`} />
+          <SectionHeader title={t('discography', { artist: artist.name, count: albums.length })} />
           
           <Box 
             className="detail-tabs"
@@ -459,17 +461,17 @@ export default function ArtistDetail() {
             >
               <Box as="li" className={activeTab === 0 ? "active" : ""}>
                 <Link onClick={() => setActiveTab(0)}>
-                  Release Date
+                  {t('releaseDateSort')}
                 </Link>
               </Box>
               <Box as="li" className={activeTab === 1 ? "active" : ""}>
                 <Link onClick={() => setActiveTab(1)}>
-                  Rating
+                  {t('rating')}
                 </Link>
               </Box>
               <Box as="li" className={activeTab === 2 ? "active" : ""}>
                 <Link onClick={() => setActiveTab(2)}>
-                  Album Type
+                  {t('albumType')}
                 </Link>
               </Box>
             </Flex>
@@ -479,7 +481,7 @@ export default function ArtistDetail() {
             
             <Box p={4}>
               {filteredAlbums.length === 0 ? (
-                <Text>No albums found for this artist.</Text>
+                <Text>{t('noAlbumsForArtist')}</Text>
               ) : (
                 <>
                   <SimpleGrid columns={{ base: 1, md: 3, lg: 4 }} spacing={3}>
@@ -498,7 +500,7 @@ export default function ArtistDetail() {
         {hasCollections && (
           <Box mt={12}>
             <SectionHeader 
-              title={`${artist.name} Collections`} 
+              title={t('collections', { artist: artist.name })} 
             />
             
             <Box p={4}>

@@ -4,8 +4,10 @@ import { Heading, Text, SimpleGrid, Box, Divider, Tabs, TabList, TabPanels, Tab,
 import { api } from '../utils/api';
 import { ArtistCard, AlbumCard, SongCard } from '../components/Cards';
 import XiamiuLayout from '../components/Layout/XiamiuLayout';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Search() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { q, type } = router.query;
   const [searchResults, setSearchResults] = useState(null);
@@ -40,7 +42,7 @@ export default function Search() {
         }
       } catch (err) {
         console.error('Error searching:', err);
-        setError('An error occurred while searching. Please try again.');
+        setError(t('searchError'));
       } finally {
         setIsLoading(false);
       }
@@ -53,8 +55,8 @@ export default function Search() {
     if (!q) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>No search query provided</Heading>
-          <Text>Please enter a search term to find artists, albums, and songs.</Text>
+          <Heading mb={4}>{t('noSearchQuery')}</Heading>
+          <Text>{t('searchPrompt')}</Text>
         </Box>
       );
     }
@@ -62,7 +64,7 @@ export default function Search() {
     if (error) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Search Error</Heading>
+          <Heading mb={4}>{t('searchError')}</Heading>
           <Text>{error}</Text>
         </Box>
       );
@@ -71,8 +73,8 @@ export default function Search() {
     if (isLoading) {
       return (
         <Box textAlign="center" py={10}>
-          <Heading mb={4}>Searching for "{q}"{type ? ` in ${type}s` : ''}</Heading>
-          <Text>Loading results...</Text>
+          <Heading mb={4}>{t('searchingFor', { q, type })}</Heading>
+          <Text>{t('loadingResults')}</Text>
         </Box>
       );
     }
@@ -87,8 +89,8 @@ export default function Search() {
     if (!hasResults) {
       return (
         <Box textAlign="center" py={10}>
-          <Text fontSize="lg">No results found for "{q}"{type ? ` in ${type}s` : ''}</Text>
-          <Text mt={2}>Try searching for something else.</Text>
+          <Text fontSize="lg">{t('noResultsFor', { q, type })}</Text>
+          <Text mt={2}>{t('tryDifferentSearch')}</Text>
         </Box>
       );
     }
@@ -117,7 +119,7 @@ export default function Search() {
 
     return (
       <Box>
-        <Heading mb={6}>Search Results for "{q}"{type ? ` in ${type}s` : ''}</Heading>
+        <Heading mb={6}>{t('searchResultsFor', { q, type })}</Heading>
         
         <Flex 
           as="ul" 
@@ -126,22 +128,22 @@ export default function Search() {
         >
           <Box as="li" className={activeTabIndex === 0 ? "active" : ""}>
             <Link onClick={() => setActiveTabIndex(0)}>
-              All Results
+              {t('allResults')}
             </Link>
           </Box>
           <Box as="li" className={activeTabIndex === 1 ? "active" : ""}>
             <Link onClick={() => setActiveTabIndex(1)}>
-              Artists ({searchResults.artists?.length || 0})
+              {t('artists')} ({searchResults.artists?.length || 0})
             </Link>
           </Box>
           <Box as="li" className={activeTabIndex === 2 ? "active" : ""}>
             <Link onClick={() => setActiveTabIndex(2)}>
-              Albums ({searchResults.albums?.length || 0})
+              {t('albums')} ({searchResults.albums?.length || 0})
             </Link>
           </Box>
           <Box as="li" className={activeTabIndex === 3 ? "active" : ""}>
             <Link onClick={() => setActiveTabIndex(3)}>
-              Songs ({searchResults.songs?.length || 0})
+              {t('songs')} ({searchResults.songs?.length || 0})
             </Link>
           </Box>
         </Flex>
@@ -150,7 +152,7 @@ export default function Search() {
           <Box>
             {filteredResults.artists?.length > 0 && (
               <Box mb={8}>
-                <Heading size="md" mb={4}>Artists</Heading>
+                <Heading size="md" mb={4}>{t('artists')}</Heading>
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
                   {filteredResults.artists.map(artist => (
                     <ArtistCard key={artist.artist_id} artist={artist} />
@@ -162,7 +164,7 @@ export default function Search() {
 
             {filteredResults.albums?.length > 0 && (
               <Box mb={8}>
-                <Heading size="md" mb={4}>Albums</Heading>
+                <Heading size="md" mb={4}>{t('albums')}</Heading>
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
                   {filteredResults.albums.map(album => (
                     <AlbumCard key={album.album_id} album={album} />
@@ -174,7 +176,7 @@ export default function Search() {
 
             {filteredResults.songs?.length > 0 && (
               <Box>
-                <Heading size="md" mb={4}>Songs</Heading>
+                <Heading size="md" mb={4}>{t('songs')}</Heading>
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
                   {filteredResults.songs.map(song => (
                     <SongCard key={song.song_id} song={song} />

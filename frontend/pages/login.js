@@ -16,6 +16,7 @@ import {
   Container
 } from '@chakra-ui/react';
 import XiamiuLayout from '../components/Layout/XiamiuLayout';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -27,6 +28,7 @@ export default function Login() {
   
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   
   // Redirect if already logged in
   if (isAuthenticated) {
@@ -43,13 +45,13 @@ export default function Login() {
     
     // Validate username
     if (!username.trim()) {
-      setUsernameError('Username is required');
+      setUsernameError(t('usernameRequired'));
       isValid = false;
     }
     
     // Validate password
     if (!password) {
-      setPasswordError('Password is required');
+      setPasswordError(t('passwordRequired'));
       isValid = false;
     }
     
@@ -73,10 +75,10 @@ export default function Login() {
         const returnUrl = router.query.returnUrl || '/';
         router.push(returnUrl);
       } else {
-        setError('Login failed. Please check your credentials.');
+        setError(t('loginFailed'));
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      setError(t('loginError'));
       console.error('Login error:', err);
     } finally {
       setIsSubmitting(false);
@@ -94,7 +96,7 @@ export default function Login() {
           bg="white"
         >
           <VStack spacing={6} align="stretch">
-            <Heading textAlign="center" size="lg" color="#f60">Login to Xiamiu</Heading>
+            <Heading textAlign="center" size="lg" color="#f60">{t('loginToXiamiu')}</Heading>
             
             {error && (
               <Alert status="error" borderRadius="md">
@@ -106,23 +108,23 @@ export default function Login() {
             <form onSubmit={handleSubmit}>
               <VStack spacing={4}>
                 <FormControl isInvalid={usernameError}>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>{t('username')}</FormLabel>
                   <Input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
+                    placeholder={t('usernamePlaceholder')}
                   />
                   <FormErrorMessage>{usernameError}</FormErrorMessage>
                 </FormControl>
                 
                 <FormControl isInvalid={passwordError}>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t('password')}</FormLabel>
                   <Input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={t('passwordPlaceholder')}
                   />
                   <FormErrorMessage>{passwordError}</FormErrorMessage>
                 </FormControl>
@@ -133,15 +135,15 @@ export default function Login() {
                   width="full"
                   mt={4}
                   isLoading={isSubmitting}
-                  loadingText="Logging in..."
+                  loadingText={t('loggingIn')}
                 >
-                  Login
+                  {t('login')}
                 </Button>
               </VStack>
             </form>
             
             <Text fontSize="sm" color="gray.600" textAlign="center">
-              Note: Registration is currently only available through the admin interface.
+              {t('registrationAdminOnly')}
             </Text>
           </VStack>
         </Box>

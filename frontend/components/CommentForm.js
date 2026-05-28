@@ -19,13 +19,15 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { StarRating } from '.';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const CommentForm = ({ 
   onSubmit, 
   showRating = false, 
   maxChars = 200,
-  placeholder = "Write your comment..."
+  placeholder
 }) => {
+  const { t } = useLanguage();
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(50); // Default to middle of 1-100 range
   const [error, setError] = useState('');
@@ -50,7 +52,7 @@ const CommentForm = ({
     
     // Validate the form
     if (!comment.trim()) {
-      setError('Comment cannot be empty');
+      setError(t('commentRequired'));
       return;
     }
     
@@ -66,7 +68,7 @@ const CommentForm = ({
       setError('');
     } catch (err) {
       // Display the specific error message from the API if available
-      setError(err.message || 'Failed to submit your comment. Please try again.');
+      setError(err.message || t('submitFailed'));
       console.error('Comment submission error:', err);
     } finally {
       setIsSubmitting(false);
@@ -77,7 +79,7 @@ const CommentForm = ({
   const renderRatingSelector = () => {
     return (
       <VStack spacing={4} align="stretch" h="100%">
-        <Text fontSize="sm" fontWeight="medium">Your rating (1-100):</Text>
+        <Text fontSize="sm" fontWeight="medium">{t('yourRating100')}</Text>
         <Box flex="1">
           <input
             type="range"
@@ -114,7 +116,7 @@ const CommentForm = ({
               <Textarea
                 value={comment}
                 onChange={handleCommentChange}
-                placeholder={placeholder}
+                placeholder={placeholder || t('writeComment')}
                 rows={4}
                 resize="vertical"
                 h="100%"
@@ -142,9 +144,9 @@ const CommentForm = ({
         colorScheme="orange"
         type="submit"
         isLoading={isSubmitting}
-        loadingText="Submitting..."
+        loadingText={t('submitting')}
       >
-        Submit
+        {t('submit')}
       </Button>
     </Box>
   );

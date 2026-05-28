@@ -1,7 +1,9 @@
 import { Box, Flex, Text, SimpleGrid, useColorModeValue, Heading, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SectionHeader = ({ title, showMore = true }) => {
+  const { t } = useLanguage();
   return (
     <Flex justify="space-between" align="center" mb={4}>
       <Flex align="center">
@@ -21,7 +23,7 @@ const SectionHeader = ({ title, showMore = true }) => {
               fontFamily="'Microsoft YaHei', 'STHeiti', sans-serif"
               fontSize="14px"
             >
-              / 更多
+              {t('more')}
             </Link>
           </NextLink>
         )}
@@ -59,10 +61,11 @@ const PlaylistCategory = ({ title, active = false }) => {
 
 const PlaylistSection = () => {
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const { t } = useLanguage();
   
   return (
     <Box mt={12} mb={8}>
-      <SectionHeader title="精选歌单" />
+      <SectionHeader title={t('playlistTitle')} />
       
       <Flex 
         justifyContent="center" 
@@ -82,7 +85,7 @@ const PlaylistSection = () => {
       </Flex>
       
       <Box textAlign="center" py={8}>
-        <Text color="gray.500">Playlist content coming soon...</Text>
+        <Text color="gray.500">{t('playlistComingSoon')}</Text>
       </Box>
     </Box>
   );

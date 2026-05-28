@@ -124,6 +124,63 @@ export const api = {
     }
   },
 
+  // Recommendations
+  getDailyRecommendations: async () => {
+    try {
+      const response = await apiClient.get('/recommendations/daily');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching daily recommendations:", error);
+      throw error;
+    }
+  },
+
+  listRecommendationSets: async () => {
+    try {
+      const response = await apiClient.get('/recommendations');
+      return response.data;
+    } catch (error) {
+      console.error("Error listing recommendation sets:", error);
+      throw error;
+    }
+  },
+
+  getRecommendationSet: async (recId) => {
+    try {
+      const response = await apiClient.get(`/recommendations/${recId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching recommendation set ${recId}:`, error);
+      throw error;
+    }
+  },
+
+  postQuickReaction: async (itemId, reaction) => {
+    try {
+      const response = await apiClient.post(
+        `/recommendations/items/${itemId}/quick-reaction`,
+        { reaction }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error posting quick reaction for item ${itemId}:`, error);
+      throw error;
+    }
+  },
+
+  postRecommendationFeedback: async (itemId, payload) => {
+    try {
+      const response = await apiClient.post(
+        `/recommendations/items/${itemId}/feedback`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error posting feedback for item ${itemId}:`, error);
+      throw error;
+    }
+  },
+  
   // Search
   search: async (query) => {
     try {

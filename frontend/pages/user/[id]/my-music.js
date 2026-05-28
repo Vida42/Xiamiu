@@ -22,6 +22,7 @@ import {
 import XiamiuLayout from '../../../components/Layout/XiamiuLayout';
 import { useAuth } from '../../../contexts/AuthContext';
 import { api } from '../../../utils/api';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 export default function MyMusic() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function MyMusic() {
   const [albumComments, setAlbumComments] = useState([]);
   const [artistComments, setArtistComments] = useState([]);
   const [error, setError] = useState(null);
+  const { t, language } = useLanguage();
 
   // Check if the logged-in user is viewing their own My Music page
   const isOwnProfile = currentUser && currentUser.id === parseInt(id);
@@ -49,7 +51,7 @@ export default function MyMusic() {
 
     // If user is trying to access someone else's My Music page
     if (currentUser && id && parseInt(id) !== currentUser.id) {
-      setError('You cannot access another user\'s My Music page');
+      setError(t('cannotAccessOtherMusic'));
       return;
     }
 
@@ -74,7 +76,7 @@ export default function MyMusic() {
         setArtistComments(artists);
       } catch (err) {
         console.error('Error fetching user data:', err);
-        setError('Failed to load user data. Please try again later.');
+        setError(t('failedLoadUserDetails'));
       } finally {
         setIsLoading(false);
       }
@@ -108,7 +110,7 @@ export default function MyMusic() {
           <Box mt={4} textAlign="center">
             <NextLink href="/" passHref legacyBehavior>
               <Button as="a" colorScheme="orange">
-                Return to Home
+                {t('returnToHome')}
               </Button>
             </NextLink>
           </Box>
@@ -121,7 +123,7 @@ export default function MyMusic() {
     return (
       <XiamiuLayout>
         <Container maxW="container.lg" py={10}>
-          <Text>User not found</Text>
+          <Text>{t('userNotFound')}</Text>
         </Container>
       </XiamiuLayout>
     );
@@ -131,21 +133,21 @@ export default function MyMusic() {
     <XiamiuLayout>
       <Container maxW="container.lg">
         <Box mb={8}>
-          <Heading size="xl" mb={2}>My Music</Heading>
-          <Text color="gray.600">Welcome back, {userData.user_name}!</Text>
+          <Heading size="xl" mb={2}>{t('myMusic')}</Heading>
+          <Text color="gray.600">{t('welcomeBack', { name: userData.user_name })}</Text>
         </Box>
 
         <Tabs variant="enclosed" colorScheme="orange">
           <TabList>
-            <Tab>Albums</Tab>
-            <Tab>Songs</Tab>
-            <Tab>Artists</Tab>
+            <Tab>{t('albums')}</Tab>
+            <Tab>{t('songs')}</Tab>
+            <Tab>{t('artists')}</Tab>
           </TabList>
 
           <TabPanels>
             <TabPanel>
               <Box>
-                <Heading size="md" mb={4}>My Album Comments</Heading>
+                <Heading size="md" mb={4}>{t('myAlbumComments')}</Heading>
                 {albumComments.length > 0 ? (
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                     {albumComments.map(comment => (
@@ -153,27 +155,27 @@ export default function MyMusic() {
                         <Flex justifyContent="space-between" mb={2}>
                           <NextLink href={`/albums/${comment.album_id}`} passHref legacyBehavior>
                             <Link fontWeight="bold" color="#f60">
-                              Album ID: {comment.album_id}
+                              {t('albumId', { id: comment.album_id })}
                             </Link>
                           </NextLink>
                           <Text fontSize="sm" color="gray.500">
-                            {new Date(comment.review_date).toLocaleDateString()}
+                            {new Date(comment.review_date).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
                           </Text>
                         </Flex>
                         <Text>{comment.comment}</Text>
-                        <Text fontSize="sm" mt={2}>Likes: {comment.num_like}</Text>
+                        <Text fontSize="sm" mt={2}>{t('likes', { count: comment.num_like })}</Text>
                       </Box>
                     ))}
                   </SimpleGrid>
                 ) : (
-                  <Text>You haven't commented on any albums yet.</Text>
+                  <Text>{t('noAlbumComments')}</Text>
                 )}
               </Box>
             </TabPanel>
 
             <TabPanel>
               <Box>
-                <Heading size="md" mb={4}>My Song Comments</Heading>
+                <Heading size="md" mb={4}>{t('mySongComments')}</Heading>
                 {songComments.length > 0 ? (
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                     {songComments.map(comment => (
@@ -181,27 +183,27 @@ export default function MyMusic() {
                         <Flex justifyContent="space-between" mb={2}>
                           <NextLink href={`/songs/${comment.song_id}`} passHref legacyBehavior>
                             <Link fontWeight="bold" color="#f60">
-                              Song ID: {comment.song_id}
+                              {t('songId', { id: comment.song_id })}
                             </Link>
                           </NextLink>
                           <Text fontSize="sm" color="gray.500">
-                            {new Date(comment.review_date).toLocaleDateString()}
+                            {new Date(comment.review_date).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
                           </Text>
                         </Flex>
                         <Text>{comment.comment}</Text>
-                        <Text fontSize="sm" mt={2}>Likes: {comment.num_like}</Text>
+                        <Text fontSize="sm" mt={2}>{t('likes', { count: comment.num_like })}</Text>
                       </Box>
                     ))}
                   </SimpleGrid>
                 ) : (
-                  <Text>You haven't commented on any songs yet.</Text>
+                  <Text>{t('noSongComments')}</Text>
                 )}
               </Box>
             </TabPanel>
 
             <TabPanel>
               <Box>
-                <Heading size="md" mb={4}>My Artist Comments</Heading>
+                <Heading size="md" mb={4}>{t('myArtistComments')}</Heading>
                 {artistComments.length > 0 ? (
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                     {artistComments.map(comment => (
@@ -209,20 +211,20 @@ export default function MyMusic() {
                         <Flex justifyContent="space-between" mb={2}>
                           <NextLink href={`/artists/${comment.artist_id}`} passHref legacyBehavior>
                             <Link fontWeight="bold" color="#f60">
-                              Artist ID: {comment.artist_id}
+                              {t('artistId', { id: comment.artist_id })}
                             </Link>
                           </NextLink>
                           <Text fontSize="sm" color="gray.500">
-                            {new Date(comment.review_date).toLocaleDateString()}
+                            {new Date(comment.review_date).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}
                           </Text>
                         </Flex>
                         <Text>{comment.comment}</Text>
-                        <Text fontSize="sm" mt={2}>Likes: {comment.num_like}</Text>
+                        <Text fontSize="sm" mt={2}>{t('likes', { count: comment.num_like })}</Text>
                       </Box>
                     ))}
                   </SimpleGrid>
                 ) : (
-                  <Text>You haven't commented on any artists yet.</Text>
+                  <Text>{t('noArtistComments')}</Text>
                 )}
               </Box>
             </TabPanel>
