@@ -128,7 +128,6 @@ def upsert_albums(db, rows: list[dict]) -> int:
             release_date=_parse_date(r.get("release_date")) or date(1970, 1, 1),
             album_category=(r.get("album_category") or "")[:20],
             record_label=(r.get("record_label") or "")[:50],
-            listen_date=_parse_date(r.get("listen_date")),
         ))
         n += 1
     db.flush()

@@ -48,6 +48,14 @@ class Genre(GenreBase):
 class ArtistBase(BaseModel):
     name: str
     region: str
+    gender: Optional[str] = None
+    play_count: Optional[int] = None
+    count_likes: Optional[int] = None
+    recommends: Optional[int] = None
+    comment_count: Optional[int] = None
+    alias: Optional[str] = None
+    category_id: Optional[int] = None
+    pinyin: Optional[str] = None
 
 
 class ArtistCreate(ArtistBase):
@@ -69,7 +77,19 @@ class AlbumBase(BaseModel):
     release_date: Optional[date] = None
     album_category: str
     record_label: str
-    listen_date: Optional[date] = None
+    album_type: int = 0
+    category_id: int = 0
+    song_count: int = 0
+    cd_count: int = 0
+    play_count: int = 0
+    collects: int = 0
+    comment_count: int = 0
+    recommends: int = 0
+    grade: Optional[float] = None
+    grade_count: int = 0
+    sub_name: str = ""
+    pinyin: str = ""
+    company_id: int = 0
 
 
 class AlbumCreate(AlbumBase):
@@ -90,6 +110,20 @@ class Album(AlbumBase):
 class SongBase(BaseModel):
     name: str
     order: int
+    cd_serial: int = 1
+    length: int = 0
+    pace: int = 0
+    play_count: int = 0
+    fav_count: int = 0
+    share_count: int = 0
+    composer: str = ""
+    songwriters: str = ""
+    arrangement: str = ""
+    music_type: int = 0
+    sub_name: str = ""
+    hot_part_start: Optional[int] = None
+    hot_part_end: Optional[int] = None
+    comment_count: Optional[int] = None
 
 
 class SongCreate(SongBase):
@@ -108,7 +142,7 @@ class Song(SongBase):
 
 # Meta schemas
 class SongMetaBase(BaseModel):
-    lyrics: str
+    lyrics: Optional[str] = None
 
 
 class SongMetaCreate(SongMetaBase):

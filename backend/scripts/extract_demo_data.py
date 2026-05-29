@@ -138,7 +138,6 @@ def make_album_row(catalog_entry: dict, formatted_entry: Optional[dict] = None) 
         "release_date": source.get("publishTime") or catalog_entry.get("publishTime") or None,
         "album_category": (catalog_entry.get("albumCategory") or "")[:20],
         "record_label": (source.get("company") or catalog_entry.get("recordLabel") or "")[:50],
-        "listen_date": None,
     }
 
 
