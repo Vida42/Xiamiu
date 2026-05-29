@@ -293,6 +293,5 @@ Next.js frontend: /recommendations/daily page
 
 ## See also
 
-- `docs/RECOMMENDATIONS_API_AND_DB_SPEC.md` — full API + DB schema reference
 - `local_reports/ai_recommendation_demo/` (gitignored) — per-day implementation reports with
   cost numbers, observations, and next-step plans
