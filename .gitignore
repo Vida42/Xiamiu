@@ -3,9 +3,11 @@ private_data/
 local_reports/
 
 # Local implementation notes
-docs/ai-recommendation-demo-plan.md
-docs/implementation-context.md
+docs/
 backend/DB_MANAGEMENT.md
+AGENTS.md
+CLAUDE.md
+.claude/
 
 # Environment variables
 .env

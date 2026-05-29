@@ -84,7 +84,19 @@ def get_artists(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_artist(db: Session, artist: schemas.ArtistCreate):
-    db_artist = models.Artist(artist_id=artist.artist_id, name=artist.name, region=artist.region)
+    db_artist = models.Artist(
+        artist_id=artist.artist_id,
+        name=artist.name,
+        region=artist.region,
+        gender=artist.gender,
+        play_count=artist.play_count,
+        count_likes=artist.count_likes,
+        recommends=artist.recommends,
+        comment_count=artist.comment_count,
+        alias=artist.alias,
+        category_id=artist.category_id,
+        pinyin=artist.pinyin,
+    )
     db.add(db_artist)
     db.commit()
     db.refresh(db_artist)
@@ -160,7 +172,19 @@ def create_album(db: Session, album: schemas.AlbumCreate):
         release_date=album.release_date,
         album_category=album.album_category,
         record_label=album.record_label,
-        listen_date=album.listen_date
+        album_type=album.album_type,
+        category_id=album.category_id,
+        song_count=album.song_count,
+        cd_count=album.cd_count,
+        play_count=album.play_count,
+        collects=album.collects,
+        comment_count=album.comment_count,
+        recommends=album.recommends,
+        grade=album.grade,
+        grade_count=album.grade_count,
+        sub_name=album.sub_name,
+        pinyin=album.pinyin,
+        company_id=album.company_id,
     )
     db.add(db_album)
     db.commit()
@@ -225,7 +249,14 @@ def get_songs(db: Session, skip: int = 0, limit: int = 100):
 
 
 def get_songs_by_album(db: Session, album_id: str, skip: int = 0, limit: int = 100):
-    return db.query(models.Song).filter(models.Song.album_id == album_id).order_by(models.Song.order).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Song)
+        .filter(models.Song.album_id == album_id)
+        .order_by(models.Song.cd_serial, models.Song.order)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_song(db: Session, song: schemas.SongCreate):
@@ -233,7 +264,21 @@ def create_song(db: Session, song: schemas.SongCreate):
         song_id=song.song_id,
         name=song.name,
         order=song.order,
-        album_id=song.album_id
+        album_id=song.album_id,
+        cd_serial=song.cd_serial,
+        length=song.length,
+        pace=song.pace,
+        play_count=song.play_count,
+        fav_count=song.fav_count,
+        share_count=song.share_count,
+        composer=song.composer,
+        songwriters=song.songwriters,
+        arrangement=song.arrangement,
+        music_type=song.music_type,
+        sub_name=song.sub_name,
+        hot_part_start=song.hot_part_start,
+        hot_part_end=song.hot_part_end,
+        comment_count=song.comment_count,
     )
     db.add(db_song)
     db.commit()

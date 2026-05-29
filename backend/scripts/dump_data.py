@@ -79,7 +79,6 @@ def dump_data():
                 'release_date': str(album.release_date),
                 'album_category': album.album_category,
                 'record_label': album.record_label,
-                'listen_date': str(album.listen_date),
                 'artist_id': album.artist_id
             } for album in albums
         ]

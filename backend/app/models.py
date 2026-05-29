@@ -13,24 +13,32 @@ artist_genre_link = Table(
     'artist_genre_link',
     Base.metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('artist_id', ForeignKey('artists.artist_id')),
-    Column('genre_id', ForeignKey('genres.id'))
+    Column('artist_id', ForeignKey('artists.artist_id'), nullable=False),
+    Column('genre_id', ForeignKey('genres.id'), nullable=False)
 )
 
 album_genre_link = Table(
     'album_genre_link',
     Base.metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('album_id', ForeignKey('albums.album_id')),
-    Column('genre_id', ForeignKey('genres.id'))
+    Column('album_id', ForeignKey('albums.album_id'), nullable=False),
+    Column('genre_id', ForeignKey('genres.id'), nullable=False)
+)
+
+album_artist_link = Table(
+    'album_artist_link',
+    Base.metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('album_id', ForeignKey('albums.album_id'), nullable=False),
+    Column('artist_id', ForeignKey('artists.artist_id'), nullable=False)
 )
 
 song_artist_link = Table(
     'song_artist_link',
     Base.metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('song_id', ForeignKey('songs.song_id')),
-    Column('artist_id', ForeignKey('artists.artist_id'))
+    Column('song_id', ForeignKey('songs.song_id'), nullable=False),
+    Column('artist_id', ForeignKey('artists.artist_id'), nullable=False)
 )
 
 
@@ -71,10 +79,19 @@ class Artist(Base):
     artist_id: Mapped[str] = mapped_column(String(20), primary_key=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
     region: Mapped[str] = mapped_column(String(50))
+    gender: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    play_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    count_likes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    recommends: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    comment_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    alias: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    category_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    pinyin: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     # Relationships
     genres = relationship("Genre", secondary=artist_genre_link, back_populates="artists")
     albums = relationship("Album", back_populates="artist")
+    credited_albums = relationship("Album", secondary=album_artist_link, back_populates="artists")
     songs = relationship("Song", secondary=song_artist_link, back_populates="artists")
     meta = relationship("ArtistMeta", uselist=False, back_populates="artist")
     comments = relationship("ArtistComment", back_populates="artist")
@@ -85,14 +102,27 @@ class Album(Base):
     album_id: Mapped[str] = mapped_column(String(20), primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
     artist_id: Mapped[str] = mapped_column(String(20), ForeignKey('artists.artist_id'))
-    album_lan: Mapped[str] = mapped_column(String(10))
+    album_lan: Mapped[str] = mapped_column(String(20))
     release_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    album_category: Mapped[str] = mapped_column(String(20))
+    album_category: Mapped[str] = mapped_column(String(50))
     record_label: Mapped[str] = mapped_column(String(255))
-    listen_date: Mapped[date] = mapped_column(Date, nullable=True)
+    album_type: Mapped[int] = mapped_column(Integer, default=0)
+    category_id: Mapped[int] = mapped_column(Integer, default=0)
+    song_count: Mapped[int] = mapped_column(Integer, default=0)
+    cd_count: Mapped[int] = mapped_column(Integer, default=0)
+    play_count: Mapped[int] = mapped_column(Integer, default=0)
+    collects: Mapped[int] = mapped_column(Integer, default=0)
+    comment_count: Mapped[int] = mapped_column(Integer, default=0)
+    recommends: Mapped[int] = mapped_column(Integer, default=0)
+    grade: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    grade_count: Mapped[int] = mapped_column(Integer, default=0)
+    sub_name: Mapped[str] = mapped_column(String(255), default="")
+    pinyin: Mapped[str] = mapped_column(String(255), default="")
+    company_id: Mapped[int] = mapped_column(Integer, default=0)
     
     # Relationships
     artist = relationship("Artist", back_populates="albums")
+    artists = relationship("Artist", secondary=album_artist_link, back_populates="credited_albums")
     genres = relationship("Genre", secondary=album_genre_link, back_populates="albums")
     songs = relationship("Song", back_populates="album")
     meta = relationship("AlbumMeta", uselist=False, back_populates="album")
@@ -105,6 +135,20 @@ class Song(Base):
     name: Mapped[str] = mapped_column(String(255))
     order: Mapped[int] = mapped_column(Integer)
     album_id: Mapped[str] = mapped_column(String(20), ForeignKey('albums.album_id'))
+    cd_serial: Mapped[int] = mapped_column(Integer, default=1)
+    length: Mapped[int] = mapped_column(Integer, default=0)
+    pace: Mapped[int] = mapped_column(Integer, default=0)
+    play_count: Mapped[int] = mapped_column(Integer, default=0)
+    fav_count: Mapped[int] = mapped_column(Integer, default=0)
+    share_count: Mapped[int] = mapped_column(Integer, default=0)
+    composer: Mapped[str] = mapped_column(String(512), default="")
+    songwriters: Mapped[str] = mapped_column(String(512), default="")
+    arrangement: Mapped[str] = mapped_column(String(512), default="")
+    music_type: Mapped[int] = mapped_column(Integer, default=0)
+    sub_name: Mapped[str] = mapped_column(String(255), default="")
+    hot_part_start: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    hot_part_end: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    comment_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     
     # Relationships
     album = relationship("Album", back_populates="songs")
